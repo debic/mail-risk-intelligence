@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "tsx watch --env-file-if-exists=../.env src/index.ts",
     "start": "tsx --env-file-if-exists=../.env src/index.ts",
-    "ping:groq": "tsx --env-file-if-exists=../.env scripts/ping-groq.ts"
+    "ping:groq": "tsx --env-file-if-exists=../.env scripts/ping-groq.ts",
+    "try:agents": "tsx --env-file-if-exists=../.env scripts/try-agents.ts"
   },
   "dependencies": {
-    "express": "^5.3.0"
+    "express": "^5.3.0",
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
