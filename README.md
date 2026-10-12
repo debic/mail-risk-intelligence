@@ -47,9 +47,10 @@ Adding an email returns immediately as `queued`; a background queue runs Agent A
 - **Styling: CSS Modules + CSS custom properties as design tokens.** No extra dependencies, scoped styles, and one file ([tokens.css](client/src/styles/tokens.css)) holds the whole design system. Color is reserved for risk; the palette is based on the hiring company's brand since Arcline is fictional.
 - **Accessibility.** Risk is never shown by color alone, AA contrast everywhere, visible focus, keyboard navigation, skip link, native `<dialog>`, a searchable alternative to the canvas graph. axe-core audit: 0 violations.
 - **Responsive.** Two panels from 900px, one panel with a Back button below that.
+- **Caching.** LLM results are persisted, so restarts never re-analyze; the seed snapshot works as a precomputed cache.
 
 ## Limitations and next steps
 
 - LLM output is not fully deterministic; borderline cases can shift one level (`npm run eval` re-checks).
 - Entities merge by normalized name, so a person's name and email address stay separate nodes. Next: smarter entity resolution.
-- With more time: mark as reviewed and manual risk override, emails as graph nodes, a smaller model for Agent A, dark mode, end-to-end tests.
+- With more time: mark as reviewed and manual risk override, emails as graph nodes, a smaller model for Agent A, cache analyses by content hash so duplicate uploads reuse the existing result, dark mode, end-to-end tests.
