@@ -63,6 +63,7 @@ Within steps I had approved, I let the agent work on its own:
 - I picked the risk scale (orange / yellow / violet / green) from a reference image I liked.
 - I chose a single-panel layout for tablets instead of the agent's two-panel suggestion.
 - After finishing, I asked another AI chat to review the repo as a hiring panel would. It flagged that the canvas graph had no full keyboard equivalent (search only works if you already know a name). We added a browsable entity list grouped by type, focus management into the panel, and an "All entities" back button, then re-tested with the keyboard and axe.
+- The same review pointed out that "axe: 0 violations" in the README was not reproducible: we had run axe manually in the browser. We added axe-core to the test suite (WCAG checks on the main components), a contrast test that reads the real design tokens, and a test breakdown in the README. We also checked that the axe test really fails on a deliberately broken component.
 - I asked the agent to explain how the knowledge graph connects emails (through shared entities, not email-to-email links) before accepting it, which also surfaced a known limitation for the README.
 
 ## 5. Time log
@@ -81,8 +82,8 @@ About 30 min of planning in Claude chat before starting, then building from 12:2
 | Bonus: knowledge graph | ~10 min | 1h |
 | 6. Tests | ~5 min | 20 min |
 | 7. README, PROCESS, screenshots, final check | ~15 min | 40 min |
-| Fixes from an external review (graph keyboard access) | ~10 min | |
-| **Total** | **about 4h10** (30 min planning + 3h40 building) | 5h45 |
+| Fixes from an external review (graph keyboard access, reproducible a11y tests) | ~20 min | |
+| **Total** | **about 4h20** (30 min planning + 3h50 building) | 5h45 |
 
 Stage 0 ran over because of the revert and because I took time to understand the plan; everything after went faster than planned because writing code with an agent is quick, and most of my time went into reviewing, deciding and verifying.
 
