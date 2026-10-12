@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { ingestFile, ingestText, IngestionError } from '../src/ingestion/index.js';
+import { ingestFile, ingestText, IngestionError, MAX_UPLOAD_BYTES } from '../src/ingestion/index.js';
+import { parseAddressList } from '../src/ingestion/parseRawText.js';
 
 const sample = (name: string) => readFileSync(fileURLToPath(new URL(`../../samples/${name}`, import.meta.url)));
 
@@ -58,5 +59,67 @@ describe('ingestFile', () => {
     const email = await ingestFile('supplier-quote.pdf', sample('supplier-quote.pdf'));
     expect(email.subject).toBe('supplier-quote.pdf');
     expect(email.body).toContain('Total: $6,420.00');
+  });
+});
+
+describe('ingestFile: renamed, malformed and oversized files', () => {
+  const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48]);
+
+  it('rejects an image renamed as .pdf', async () => {
+    await expect(ingestFile('invoice.pdf', png)).rejects.toThrow(/named .pdf but is not a PDF/);
+  });
+
+  it('rejects binary content renamed as .txt', async () => {
+    await expect(ingestFile('notes.txt', png)).rejects.toThrow(/does not contain text/);
+  });
+
+  it('rejects binary content renamed as .eml', async () => {
+    await expect(ingestFile('message.eml', png)).rejects.toThrow(/does not contain text/);
+  });
+
+  it('rejects an .eml without email headers', async () => {
+    await expect(ingestFile('message.eml', Buffer.from('just some plain text\nno headers here'))).rejects.toThrow(
+      /no email headers/,
+    );
+  });
+
+  it('rejects a corrupted PDF with a controlled error', async () => {
+    const broken = Buffer.from('%PDF-1.4\nthis is not really a pdf body');
+    await expect(ingestFile('broken.pdf', broken)).rejects.toThrow(IngestionError);
+  });
+
+  it('rejects files over 5 MB', async () => {
+    await expect(ingestFile('big.txt', Buffer.alloc(MAX_UPLOAD_BYTES + 1, 'a'))).rejects.toThrow(/larger than 5 MB/);
+  });
+
+  it('accepts UTF-8 text with accents and symbols', async () => {
+    const email = await ingestFile('note.txt', Buffer.from('Subject: Pago\n\nPor favor, transferí 1.500 € hoy. ✓'));
+    expect(email.subject).toBe('Pago');
+  });
+});
+
+describe('parseAddressList (regression: display names with commas)', () => {
+  it('keeps "Smith, John <john@example.com>" as one address', () => {
+    expect(parseAddressList('Smith, John <john@example.com>')).toEqual(['john@example.com']);
+  });
+
+  it('handles quoted names, commas and semicolons in one list', () => {
+    expect(parseAddressList('"Doe, Jane" <jane@example.com>, Bob <BOB@example.com>; ops@arcline.com')).toEqual([
+      'jane@example.com',
+      'bob@example.com',
+      'ops@arcline.com',
+    ]);
+  });
+
+  it('keeps a value with no address as-is', () => {
+    expect(parseAddressList('Finance team')).toEqual(['Finance team']);
+  });
+
+  it('is used for pasted To and Cc headers', () => {
+    const email = ingestText(
+      'From: "Smith, John" <john@example.com>\nTo: Doe, Jane <jane@arcline.com>\nCc: ops@arcline.com\n\nHi',
+    );
+    expect(email.from).toBe('john@example.com');
+    expect(email.to).toEqual(['jane@arcline.com', 'ops@arcline.com']);
   });
 });

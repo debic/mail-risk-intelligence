@@ -3,11 +3,19 @@ import { IngestionError, UNKNOWN_SENDER, type IngestedEmail } from './types.js';
 const HEADER = /^(from|to|cc|subject|date|sent)\s*:\s*(.*)$/i;
 const MAX_SUBJECT_FROM_BODY = 80;
 
-export function splitAddresses(value: string): string[] {
-  return value
-    .split(/[,;]/)
-    .map((part) => part.trim())
-    .filter(Boolean);
+const EMAIL_ADDRESS = /[a-z0-9._%+'-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
+
+/**
+ * Address header value -> list of addresses. Finds the addresses themselves instead of
+ * splitting on commas, so display names with commas or quotes work:
+ * `"Smith, John" <john@example.com>; Jane <jane@example.com>` -> both addresses.
+ * A value with no address at all (e.g. "Finance team") is kept as-is.
+ */
+export function parseAddressList(value: string): string[] {
+  const addresses = value.match(EMAIL_ADDRESS)?.map((address) => address.toLowerCase()) ?? [];
+  if (addresses.length > 0) return [...new Set(addresses)];
+  const trimmed = value.trim();
+  return trimmed ? [trimmed] : [];
 }
 
 export function toIsoDate(value: string | undefined): string {
@@ -39,8 +47,8 @@ export function parseRawText(text: string): IngestedEmail {
 
   const firstLine = body.split('\n')[0].trim();
   return {
-    from: headers.from || UNKNOWN_SENDER,
-    to: splitAddresses(headers.to ?? ''),
+    from: parseAddressList(headers.from ?? '')[0] ?? UNKNOWN_SENDER,
+    to: [...new Set([...parseAddressList(headers.to ?? ''), ...parseAddressList(headers.cc ?? '')])],
     date: toIsoDate(headers.date ?? headers.sent),
     subject:
       headers.subject ||
