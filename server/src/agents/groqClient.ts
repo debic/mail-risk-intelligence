@@ -13,6 +13,8 @@ export class LlmError extends Error {
     public readonly kind: LlmErrorKind,
     message: string,
     public readonly status?: number,
+    /** How long Groq asked us to wait before retrying (rate limits), if it said so. */
+    public readonly retryAfterMs?: number,
   ) {
     super(message);
     this.name = 'LlmError';
@@ -25,10 +27,53 @@ export interface CallGroqOptions {
   timeoutMs?: number;
 }
 
+/** Parse Groq's wait hints: "retry-after: 7" (seconds) or "x-ratelimit-reset-tokens: 1m2.5s" / "43.9s" / "120ms". */
+export function parseRetryAfter(headers: Headers): number | undefined {
+  const retryAfter = headers.get('retry-after');
+  if (retryAfter && !Number.isNaN(Number(retryAfter))) {
+    return Number(retryAfter) * 1000;
+  }
+  const reset = headers.get('x-ratelimit-reset-tokens') ?? headers.get('x-ratelimit-reset-requests');
+  const match = reset?.match(/^(?:(\d+)m)?(?:([\d.]+)s)?(?:([\d.]+)ms)?$/);
+  if (!match || !reset) return undefined;
+  const [, minutes = '0', seconds = '0', millis = '0'] = match;
+  return Number(minutes) * 60_000 + Number(seconds) * 1000 + Number(millis);
+}
+
+// Client-side throttle for Groq's tokens-per-minute limit. Groq reports the remaining budget
+// on every response; when it runs low we wait for it to refill instead of hitting a 429.
+const MIN_TOKENS_BEFORE_CALL = 3000;
+const MAX_THROTTLE_WAIT_MS = 60_000;
+let budget: { remaining: number; limitPerMinute: number; seenAt: number } | null = null;
+
+function rememberBudget(headers: Headers): void {
+  const remaining = Number(headers.get('x-ratelimit-remaining-tokens'));
+  const limitPerMinute = Number(headers.get('x-ratelimit-limit-tokens'));
+  if (Number.isFinite(remaining) && limitPerMinute > 0) {
+    budget = { remaining, limitPerMinute, seenAt: Date.now() };
+  }
+}
+
+/** How long to wait so the token budget refills to MIN_TOKENS_BEFORE_CALL (0 if it already has). */
+export function throttleWaitMs(now = Date.now()): number {
+  if (!budget) return 0;
+  const tokensPerMs = budget.limitPerMinute / 60_000;
+  const refilled = budget.remaining + (now - budget.seenAt) * tokensPerMs;
+  const missing = Math.min(MIN_TOKENS_BEFORE_CALL, budget.limitPerMinute) - refilled;
+  return missing <= 0 ? 0 : Math.min(Math.ceil(missing / tokensPerMs), MAX_THROTTLE_WAIT_MS);
+}
+
 export async function callGroq({ system, user, timeoutMs = DEFAULT_TIMEOUT_MS }: CallGroqOptions): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     throw new LlmError('no_key', 'GROQ_API_KEY is not configured');
+  }
+
+  const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
+
+  const wait = throttleWaitMs();
+  if (wait > 0) {
+    await new Promise((resolve) => setTimeout(resolve, wait));
   }
 
   let response: Response;
@@ -40,8 +85,10 @@ export async function callGroq({ system, user, timeoutMs = DEFAULT_TIMEOUT_MS }:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: process.env.GROQ_MODEL || DEFAULT_MODEL,
+        model,
         temperature: 0,
+        // gpt-oss models reason before answering; low effort keeps token use within free-tier limits.
+        ...(model.startsWith('openai/gpt-oss') && { reasoning_effort: 'low' }),
         // JSON mode: the model must return a single valid JSON object.
         response_format: { type: 'json_object' },
         messages: [
@@ -58,9 +105,16 @@ export async function callGroq({ system, user, timeoutMs = DEFAULT_TIMEOUT_MS }:
     throw new LlmError('network', `Could not reach Groq: ${(err as Error).message}`);
   }
 
+  rememberBudget(response.headers);
+
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
-    throw new LlmError('http', `Groq returned HTTP ${response.status}: ${detail.slice(0, 200)}`, response.status);
+    throw new LlmError(
+      'http',
+      `Groq returned HTTP ${response.status}: ${detail.slice(0, 200)}`,
+      response.status,
+      parseRetryAfter(response.headers),
+    );
   }
 
   const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };

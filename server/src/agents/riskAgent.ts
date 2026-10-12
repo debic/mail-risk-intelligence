@@ -39,6 +39,15 @@ Risk levels:
 - low: minor anomaly, probably benign.
 - none: routine business (IT notices, HR announcements, normal invoices from known suppliers with unchanged details).
 
+Each category is serious on its own; money does not need to be involved. These are always "high":
+- Sharing non-public deal or company information with an outsider while suggesting they trade on it (insider trading).
+- Threats or intimidation toward an employee, e.g. "I know where your office is", "you'll regret this", implied harm.
+- Sending confidential company or client data to a personal or external address.
+- A lookalike sender domain asking for money, credentials or clicks.
+- A request to change the bank account or payment details for a supplier, especially when the amount is higher than previous invoices. This is a classic invoice-fraud pattern even when the tone is polite.
+
+Consistency: the level must match your rationale. If you find no concrete risk signal, the level is "none" and "tags" is an empty array. Never use placeholder tags like "none".
+
 Suggested tags (use others only if needed): urgency, secrecy, impersonation, lookalike-domain, financial-anomaly, payment-change, phishing, credential-request, suspicious-link, data-exfiltration, insider-threat, mnpi-risk, insider-trading, threat-language, harassment, accounting-irregularity, whistleblower.
 
 Entities:

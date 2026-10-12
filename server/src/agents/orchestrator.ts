@@ -49,12 +49,23 @@ export function toPipelineError(err: unknown): PipelineError {
   return { kind: 'unknown', message: err instanceof Error ? err.message : String(err) };
 }
 
+// Never wait longer than this for a rate limit to reset before the single retry.
+const MAX_RETRY_WAIT_MS = 60_000;
+
+/** Wait what Groq asked for on rate limits (capped), otherwise the default short delay. */
+export function retryWaitMs(err: unknown, defaultDelayMs: number): number {
+  if (err instanceof LlmError && err.retryAfterMs !== undefined) {
+    return Math.min(err.retryAfterMs + 250, MAX_RETRY_WAIT_MS);
+  }
+  return defaultDelayMs;
+}
+
 async function withOneRetry<T>(task: () => Promise<T>, retryDelayMs: number): Promise<T> {
   try {
     return await task();
   } catch (err) {
     if (!isRetryable(err)) throw err;
-    await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+    await new Promise((resolve) => setTimeout(resolve, retryWaitMs(err, retryDelayMs)));
     return task();
   }
 }

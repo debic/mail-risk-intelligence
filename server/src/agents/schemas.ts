@@ -42,6 +42,8 @@ export type Extraction = z.infer<typeof ExtractionSchema>;
 // ---------- Agent B: risk + entities + relationships ----------
 
 export const RISK_LEVELS = ['none', 'low', 'medium', 'high'] as const;
+// Placeholder tags models sometimes emit when there is nothing to report.
+const MEANINGLESS_TAGS = new Set(['none', 'no-risk', 'n-a', 'na', 'normal', 'routine']);
 export const ENTITY_TYPES = ['person', 'organization', 'amount', 'account', 'location', 'other'] as const;
 
 /** "Financial Anomaly" / "financial_anomaly" -> "financial-anomaly" */
@@ -77,7 +79,7 @@ export const RiskAnalysisSchema = z
       tags: z
         .array(z.string())
         .default([])
-        .transform((tags) => [...new Set(tags.map(toKebabCase).filter(Boolean))]),
+        .transform((tags) => [...new Set(tags.map(toKebabCase).filter((tag) => tag && !MEANINGLESS_TAGS.has(tag)))]),
     }),
     entities: z.array(EntitySchema).default([]),
     relationships: z.array(RelationshipSchema).default([]),
