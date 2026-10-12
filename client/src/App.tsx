@@ -1,14 +1,23 @@
 import { useState } from 'react'
 import { AppHeader, type View } from './components/AppHeader'
+import { EmailDetail } from './components/EmailDetail'
 import { EmailList } from './components/EmailList'
 import { EmptyState } from './components/EmptyState'
 import { SplitLayout } from './components/SplitLayout'
+import { useEmailDetail } from './hooks/useEmailDetail'
 import { useEmails } from './hooks/useEmails'
 
 function App() {
   const [view, setView] = useState<View>('inbox')
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const { emails, error, loading, reload } = useEmails()
+  const inbox = useEmails()
+  const detail = useEmailDetail(selectedId)
+
+  async function handleRetry() {
+    await detail.retry()
+    // Refresh the list so its badge switches to "Queued" and it starts polling too.
+    void inbox.reload()
+  }
 
   return (
     <>
@@ -19,18 +28,30 @@ function App() {
             showDetailOnMobile={selectedId !== null}
             list={
               <EmailList
-                emails={emails}
-                loading={loading}
-                error={error}
+                emails={inbox.emails}
+                loading={inbox.loading}
+                error={inbox.error}
                 selectedId={selectedId}
                 onSelect={setSelectedId}
-                onRetryLoad={reload}
+                onRetryLoad={inbox.reload}
               />
             }
             detail={
-              <EmptyState title="Select an email">
-                Choose an email from the list to see its risk assessment, extracted facts and entities.
-              </EmptyState>
+              selectedId ? (
+                <EmailDetail
+                  email={detail.email}
+                  loading={detail.loading}
+                  error={detail.error}
+                  retrying={detail.retrying}
+                  onBack={() => setSelectedId(null)}
+                  onRetry={handleRetry}
+                  onReload={() => void detail.reload()}
+                />
+              ) : (
+                <EmptyState title="Select an email">
+                  Choose an email from the list to see its risk assessment, extracted facts and entities.
+                </EmptyState>
+              )
             }
           />
         ) : (
