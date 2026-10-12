@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { AppHeader, type View } from './components/AppHeader'
+import { EmailList } from './components/EmailList'
 import { EmptyState } from './components/EmptyState'
 import { SplitLayout } from './components/SplitLayout'
+import { useEmails } from './hooks/useEmails'
 
 function App() {
   const [view, setView] = useState<View>('inbox')
-  const [selectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const { emails, error, loading, reload } = useEmails()
 
   return (
     <>
@@ -14,7 +17,16 @@ function App() {
         {view === 'inbox' ? (
           <SplitLayout
             showDetailOnMobile={selectedId !== null}
-            list={<EmptyState title="Inbox">The email list arrives in step 4.2.</EmptyState>}
+            list={
+              <EmailList
+                emails={emails}
+                loading={loading}
+                error={error}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                onRetryLoad={reload}
+              />
+            }
             detail={
               <EmptyState title="Select an email">
                 Choose an email from the list to see its risk assessment, extracted facts and entities.

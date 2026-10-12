@@ -27,23 +27,30 @@
   --color-focus: #187bdc;
   --gradient-brand: linear-gradient(135deg, #002846 0%, #187bdc 100%);
 
-  /* Risk levels: text, background, border.
-     "Low" uses teal so it is never confused with the blue accent. */
-  --risk-high-fg: #b42318;
-  --risk-high-bg: #fef3f2;
-  --risk-high-border: #fecdca;
+  /* Risk levels. "marker" is the decorative dot/stripe color (the text label carries
+     the meaning); "fg" is the text-safe shade (AA on its "bg"). */
+  --risk-high-marker: #ee6a2c; /* orange */
+  --risk-high-fg: #b5420c;
+  --risk-high-bg: #fff3ec;
+  --risk-high-border: #fbd0b9;
 
-  --risk-medium-fg: #a33f06;
-  --risk-medium-bg: #fffaeb;
-  --risk-medium-border: #fedf89;
+  --risk-medium-marker: #f2b33d; /* warm yellow */
+  --risk-medium-fg: #8a5800;
+  --risk-medium-bg: #fff8e6;
+  --risk-medium-border: #f8dfa6;
 
-  --risk-low-fg: #0e6676;
-  --risk-low-bg: #ecfbfd;
-  --risk-low-border: #a5e6f0;
+  --risk-low-marker: #7b61ff; /* violet */
+  --risk-low-fg: #5a3fd9;
+  --risk-low-bg: #f3f0ff;
+  --risk-low-border: #d5ccff;
 
+  --risk-none-marker: #2fb37a; /* green */
   --risk-none-fg: #067647;
-  --risk-none-bg: #ecfdf3;
+  --risk-none-bg: #ecfbf3;
   --risk-none-border: #abefc6;
+
+  /* Errors (failed analysis, load errors), kept distinct from "high risk" */
+  --color-danger: #b42318;
 
   /* Pipeline status (queued / analyzing) */
   --status-fg: #496579;

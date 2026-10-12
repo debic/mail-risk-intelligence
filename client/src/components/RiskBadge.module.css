@@ -1,0 +1,79 @@
+/* Quiet badge: a small colored marker carries the color, the label stays neutral text. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.badge[data-size='md'] {
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.marker {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--marker-color);
+}
+
+.badge[data-size='md'] .marker {
+  width: 10px;
+  height: 10px;
+}
+
+.badge[data-tone='high'] {
+  --marker-color: var(--risk-high-marker);
+}
+.badge[data-tone='medium'] {
+  --marker-color: var(--risk-medium-marker);
+}
+.badge[data-tone='low'] {
+  --marker-color: var(--risk-low-marker);
+}
+.badge[data-tone='none'] {
+  --marker-color: var(--risk-none-marker);
+}
+
+/* Queued: hollow gray ring. */
+.badge[data-tone='queued'] {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-medium);
+}
+.badge[data-tone='queued'] .marker {
+  background: transparent;
+  border: 2px solid var(--color-border-strong);
+}
+
+/* Analyzing: spinning ring. */
+.badge[data-tone='analyzing'] {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-medium);
+}
+.badge[data-tone='analyzing'] .marker {
+  background: transparent;
+  border: 2px solid var(--color-accent);
+  border-right-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Failed: hollow red ring, so it never reads as "high risk". */
+.badge[data-tone='failed'] {
+  color: var(--color-danger);
+}
+.badge[data-tone='failed'] .marker {
+  background: transparent;
+  border: 2px solid var(--color-danger);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

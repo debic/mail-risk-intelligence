@@ -145,7 +145,7 @@ Update the checkboxes as steps are completed.
 
 ### Stage 4: Main UI (1 h 30 min) - main focus
 - [x] 4.1 Design tokens: colors, spacing, type scale, risk badge colors
-- [ ] 4.2 Inbox list with color-coded risk badge (with text label)
+- [x] 4.2 Inbox list with color-coded risk badge (with text label)
 - [ ] 4.3 Detail view: original, extraction, rationale, tags
 - [ ] 4.4 Entities and relationships panel
 - [ ] 4.5 Loading, empty and error states (including failed analysis + retry)
