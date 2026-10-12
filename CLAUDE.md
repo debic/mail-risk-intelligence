@@ -126,10 +126,10 @@ Update the checkboxes as steps are completed.
 
 ### Stage 1: Project skeleton (30 min)
 - [x] 1.1 Create `client/` (Vite + React + TS) and `server/` (Express + TS)
-- [ ] 1.2 Create server folders: `ingestion/`, `agents/`, `storage/`, `routes/`
+- [x] 1.2 Create server folders: `ingestion/`, `agents/`, `storage/`, `routes/`
 - [x] 1.3 Add `.env.example` and load `GROQ_API_KEY` from `.env`
-- [ ] 1.4 Simple endpoint that returns the 10 seed emails (no AI yet)
-- [ ] 1.5 Client shows the email list on screen (can be ugly)
+- [x] 1.4 Simple endpoint that returns the 10 seed emails (no AI yet)
+- [x] 1.5 Client shows the email list on screen (can be ugly)
 
 ### Stage 2: Agents (1 h 15 min)
 - [ ] 2.1 Groq client wrapper with timeout
