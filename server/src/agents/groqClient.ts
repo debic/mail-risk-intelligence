@@ -63,13 +63,17 @@ export function throttleWaitMs(now = Date.now()): number {
   return missing <= 0 ? 0 : Math.min(Math.ceil(missing / tokensPerMs), MAX_THROTTLE_WAIT_MS);
 }
 
+export function getModelName(): string {
+  return process.env.GROQ_MODEL || DEFAULT_MODEL;
+}
+
 export async function callGroq({ system, user, timeoutMs = DEFAULT_TIMEOUT_MS }: CallGroqOptions): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     throw new LlmError('no_key', 'GROQ_API_KEY is not configured');
   }
 
-  const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
+  const model = getModelName();
 
   const wait = throttleWaitMs();
   if (wait > 0) {

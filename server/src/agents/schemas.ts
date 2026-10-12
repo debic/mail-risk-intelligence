@@ -95,3 +95,7 @@ export const RiskAnalysisSchema = z
   });
 
 export type RiskAnalysis = z.infer<typeof RiskAnalysisSchema>;
+
+// Compile-time guard: validated agent output must fit the shared API types the client uses.
+type Assert<T extends true> = T;
+export type _ExtractionMatchesShared = Assert<Extraction extends import('../../../shared/types.js').Extraction ? true : false>;

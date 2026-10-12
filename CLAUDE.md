@@ -139,7 +139,7 @@ Update the checkboxes as steps are completed.
 - [x] 2.5 Run on the 10 seed emails and compare with the expected results table
 
 ### Stage 3: Storage and API (30 min)
-- [ ] 3.1 SQLite schema for emails, analysis results, entities and relationships
+- [x] 3.1 SQLite schema for emails, analysis results, entities and relationships
 - [ ] 3.2 On startup, process seed emails only if not already stored
 - [ ] 3.3 Endpoints: list emails, get one, add new, retry a failed one
 
