@@ -132,7 +132,7 @@ Update the checkboxes as steps are completed.
 - [x] 1.5 Client shows the email list on screen (can be ugly)
 
 ### Stage 2: Agents (1 h 15 min)
-- [ ] 2.1 Groq client wrapper with timeout
+- [x] 2.1 Groq client wrapper with timeout
 - [ ] 2.2 Agent A prompt + zod schema for its output
 - [ ] 2.3 Agent B prompt + zod schema for its output
 - [ ] 2.4 Orchestrator: A then B, retry once on failure, mark `failed` with error message if it still fails
