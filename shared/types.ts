@@ -68,6 +68,8 @@ export interface EntityRef {
 
 export interface EmailEntity extends EntityRef {
   details: string | null;
+  /** Other emails where the same entity appears (links emails together). */
+  otherEmailIds: string[];
 }
 
 export interface EmailRelationship {

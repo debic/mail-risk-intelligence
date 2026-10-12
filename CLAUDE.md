@@ -147,7 +147,7 @@ Update the checkboxes as steps are completed.
 - [x] 4.1 Design tokens: colors, spacing, type scale, risk badge colors
 - [x] 4.2 Inbox list with color-coded risk badge (with text label)
 - [x] 4.3 Detail view: original, extraction, rationale, tags
-- [ ] 4.4 Entities and relationships panel
+- [x] 4.4 Entities and relationships panel
 - [ ] 4.5 Loading, empty and error states (including failed analysis + retry)
 - [ ] 4.6 Responsive: mobile list then detail with back button
 - [ ] 4.7 Accessibility: contrast, keyboard navigation, visible focus

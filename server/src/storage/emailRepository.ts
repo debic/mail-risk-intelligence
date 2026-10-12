@@ -113,13 +113,19 @@ export function createEmailRepository(db: Db) {
 
       const analysis = db.prepare('SELECT * FROM analyses WHERE email_id = ?').get(id) as AnalysisRow | undefined;
 
-      const entities = db
+      const entityRows = db
         .prepare(
-          `SELECT en.id, en.type, en.name, ee.details
+          `SELECT en.id, en.type, en.name, ee.details,
+                  (SELECT group_concat(other.email_id) FROM email_entities other
+                   WHERE other.entity_id = en.id AND other.email_id != ee.email_id) AS other_ids
            FROM email_entities ee JOIN entities en ON en.id = ee.entity_id
            WHERE ee.email_id = ? ORDER BY en.type, en.name`,
         )
-        .all(id) as EmailEntity[];
+        .all(id) as (Omit<EmailEntity, 'otherEmailIds'> & { other_ids: string | null })[];
+      const entities: EmailEntity[] = entityRows.map(({ other_ids, ...entity }) => ({
+        ...entity,
+        otherEmailIds: other_ids ? other_ids.split(',').sort() : [],
+      }));
 
       const relRows = db
         .prepare(

@@ -3,6 +3,7 @@ import { AppHeader, type View } from './components/AppHeader'
 import { EmailDetail } from './components/EmailDetail'
 import { EmailList } from './components/EmailList'
 import { EmptyState } from './components/EmptyState'
+import { EntitiesPanel } from './components/EntitiesPanel'
 import { SplitLayout } from './components/SplitLayout'
 import { useEmailDetail } from './hooks/useEmailDetail'
 import { useEmails } from './hooks/useEmails'
@@ -46,7 +47,15 @@ function App() {
                   onBack={() => setSelectedId(null)}
                   onRetry={handleRetry}
                   onReload={() => void detail.reload()}
-                />
+                >
+                  {detail.email?.status === 'done' && (
+                    <EntitiesPanel
+                      entities={detail.email.entities}
+                      relationships={detail.email.relationships}
+                      onOpenEmail={setSelectedId}
+                    />
+                  )}
+                </EmailDetail>
               ) : (
                 <EmptyState title="Select an email">
                   Choose an email from the list to see its risk assessment, extracted facts and entities.
