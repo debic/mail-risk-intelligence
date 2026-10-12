@@ -167,8 +167,8 @@ Update the checkboxes as steps are completed.
 - [ ] 7.3 Final check of `.env.example` and run instructions from a clean clone
 
 ### Bonus, only if time allows: Knowledge graph (1 h)
-- [ ] B.1 Graph view of all entities and relationships (react-force-graph or React Flow)
-- [ ] B.2 Pan/zoom, click a node to see its connections
+- [x] B.1 Graph view of all entities and relationships (react-force-graph or React Flow)
+- [x] B.2 Pan/zoom, click a node to see its connections
 
 If running late, cut the bonus first.
 

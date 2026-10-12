@@ -19,7 +19,16 @@ interface EmailDetailProps {
   children?: ReactNode
 }
 
-export function EmailDetail({ email, loading, error, retrying, onBack, onRetry, onReload, children }: EmailDetailProps) {
+export function EmailDetail({
+  email,
+  loading,
+  error,
+  retrying,
+  onBack,
+  onRetry,
+  onReload,
+  children,
+}: EmailDetailProps) {
   const headingRef = useRef<HTMLHeadingElement>(null)
 
   // Move focus to the subject when a new email opens, so keyboard and screen reader users land on it.

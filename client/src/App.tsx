@@ -6,6 +6,7 @@ import { EmailDetail } from './components/EmailDetail'
 import { EmailList } from './components/EmailList'
 import { EmptyState } from './components/EmptyState'
 import { EntitiesPanel } from './components/EntitiesPanel'
+import { GraphView } from './components/GraphView'
 import { SplitLayout } from './components/SplitLayout'
 import { useEmailDetail } from './hooks/useEmailDetail'
 import { useEmails } from './hooks/useEmails'
@@ -77,13 +78,12 @@ function App() {
             }
           />
         ) : (
-          <>
-            <h1 className="visually-hidden">Knowledge graph</h1>
-            <EmptyState icon="◎" title="Knowledge graph is coming soon">
-              It will connect people, organizations and accounts across all emails. For now, use the "Also in" links
-              in each email's entities to jump between related emails.
-            </EmptyState>
-          </>
+          <GraphView
+            onOpenEmail={(id) => {
+              setView('inbox')
+              setSelectedId(id)
+            }}
+          />
         )}
       </main>
       <AddEmailDialog open={adding} onClose={() => setAdding(false)} onCreated={handleCreated} />
