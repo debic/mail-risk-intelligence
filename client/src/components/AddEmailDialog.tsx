@@ -223,7 +223,7 @@ export function AddEmailDialog({ open, onClose, onCreated }: AddEmailDialogProps
             Cancel
           </button>
           <button type="submit" className={styles.primary} disabled={!canSubmit}>
-            {submitting ? 'Uploading…' : 'Analyze email'}
+            {submitting ? (mode === 'upload' ? 'Uploading file…' : 'Adding email…') : 'Analyze email'}
           </button>
         </footer>
       </form>

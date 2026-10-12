@@ -83,9 +83,24 @@ describe('ingestFile: renamed, malformed and oversized files', () => {
     );
   });
 
-  it('rejects a corrupted PDF with a controlled error', async () => {
+  it('rejects a corrupted PDF with a fixed message and keeps library details out of it', async () => {
     const broken = Buffer.from('%PDF-1.4\nthis is not really a pdf body');
-    await expect(ingestFile('broken.pdf', broken)).rejects.toThrow(IngestionError);
+    const error = await ingestFile('broken.pdf', broken).catch((err: unknown) => err);
+    expect(error).toBeInstanceOf(IngestionError);
+    expect(error).toMatchObject({
+      code: 'unreadable_pdf',
+      message: 'This PDF could not be read. It may be corrupted or password-protected.',
+    });
+    // The parser's own error is kept for the server log only.
+    expect((error as IngestionError).detail).toBeTruthy();
+  });
+
+  it('classifies each rejection with a code', async () => {
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x00, 0x01]);
+    await expect(ingestFile('a.docx', png)).rejects.toMatchObject({ code: 'unsupported_type' });
+    await expect(ingestFile('a.pdf', png)).rejects.toMatchObject({ code: 'not_pdf' });
+    await expect(ingestFile('a.txt', png)).rejects.toMatchObject({ code: 'binary_content' });
+    await expect(ingestFile('a.txt', Buffer.alloc(0))).rejects.toMatchObject({ code: 'empty' });
   });
 
   it('rejects files over 5 MB', async () => {

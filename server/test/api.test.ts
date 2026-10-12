@@ -7,6 +7,9 @@ import { createEmailRepository } from '../src/storage/emailRepository.js';
 
 // End-to-end through HTTP: bad uploads return a clear 400 and never leave partial data behind.
 
+// Keep expected server-side warnings out of the test output.
+vi.spyOn(console, 'warn').mockImplementation(() => {});
+
 const repo = createEmailRepository(openDb(':memory:'));
 const queue = { kick: vi.fn(), idle: async () => {} };
 let server: Server;
@@ -44,6 +47,17 @@ describe('POST /api/emails/ingest', () => {
     expect((await response.json()).error).toBeTruthy();
     expect(storedCount()).toBe(before);
     expect(queue.kick).not.toHaveBeenCalled();
+  });
+
+  it('returns a fixed message and a code, never the parser error, for a corrupted PDF', async () => {
+    const response = await upload('broken.pdf', '%PDF-1.4\nnot really a pdf');
+    const body = await response.json();
+    expect(response.status).toBe(400);
+    expect(body).toEqual({
+      error: 'This PDF could not be read. It may be corrupted or password-protected.',
+      code: 'unreadable_pdf',
+    });
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('[ingest] unreadable_pdf'));
   });
 
   it('rejects a file over 5 MB with a 400', async () => {

@@ -30,7 +30,7 @@ export function toIsoDate(value: string | undefined): string {
  */
 export function parseRawText(text: string): IngestedEmail {
   const normalized = text.replace(/\r\n?/g, '\n').trim();
-  if (!normalized) throw new IngestionError('The email is empty.');
+  if (!normalized) throw new IngestionError('empty', 'The email is empty.');
 
   const lines = normalized.split('\n');
   const headers: Record<string, string> = {};
@@ -43,7 +43,7 @@ export function parseRawText(text: string): IngestedEmail {
   }
 
   const body = lines.slice(bodyStart).join('\n').trim();
-  if (!body) throw new IngestionError('The email has headers but no body text.');
+  if (!body) throw new IngestionError('no_body', 'The email has headers but no body text.');
 
   const firstLine = body.split('\n')[0].trim();
   return {

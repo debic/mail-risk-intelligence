@@ -23,7 +23,7 @@ npm run dev            # http://localhost:5173
 
 **Without a key the app still works:** the 10 seed emails load from a committed snapshot of their analysis, and new emails show a clear "AI service not configured" state with Retry. Try **Add email** with the files in [`samples/`](samples/).
 
-`npm test` runs 95 tests (no API calls). `npm run eval -w server` checks the 10 seeds against my expected risk levels (10/10).
+`npm test` runs 99 tests (no API calls). `npm run eval -w server` checks the 10 seeds against my expected risk levels (10/10).
 
 ## Architecture
 
@@ -55,10 +55,10 @@ Adding an email returns immediately as `queued`; a background queue runs Agent A
 | --- | --- | --- |
 | Server: model output parsing | 14 | valid output, garbage (prose, truncated JSON, empty, wrong shape), normalization |
 | Server: orchestrator | 8 | retry once on transient errors, no retry without a key, partial results, never throws |
-| Server: ingestion | 20 | pasted text, the `.txt` / `.eml` / `.pdf` samples, renamed and malformed files (content is checked, not just the extension), display names with commas |
+| Server: ingestion | 21 | pasted text, the `.txt` / `.eml` / `.pdf` samples, renamed and malformed files (content is checked, not just the extension), error codes, display names with commas |
 | Server: storage | 4 | entity de-duplication that links emails in the graph |
-| Server: API (HTTP) | 8 | bad uploads return 400 and store nothing, oversized files, valid upload is queued, 404 |
-| UI: components | 19 | risk badge labels, failure and retry states, `hxxp://` never clickable, file validation |
+| Server: API (HTTP) | 9 | bad uploads return 400 and store nothing, library errors never reach the client, oversized files, valid upload is queued, 404 |
+| UI: components | 21 | risk badge labels, failure and retry states, `hxxp://` never clickable, file validation, add email submit and error states |
 | UI: accessibility (axe-core) | 5 | WCAG 2 A/AA rules on the inbox, loading/error states, email detail with entities, failed state, add email dialog |
 | UI: token contrast | 17 | every text/background pair in `tokens.css` is at least 4.5:1 |
 

@@ -22,11 +22,11 @@ export async function parseEml(data: Buffer): Promise<IngestedEmail> {
   try {
     parsed = await simpleParser(data);
   } catch (err) {
-    throw new IngestionError(`This .eml file could not be read: ${(err as Error).message}`);
+    throw new IngestionError('unreadable_eml', 'This .eml file could not be read.', (err as Error).message);
   }
 
   const body = (parsed.text || (parsed.html ? stripHtml(parsed.html) : '')).trim();
-  if (!body && parsed.attachments.length === 0) throw new IngestionError('The email is empty.');
+  if (!body && parsed.attachments.length === 0) throw new IngestionError('empty', 'The email is empty.');
 
   const attachments: Attachment[] = [];
   for (const file of parsed.attachments) {

@@ -29,11 +29,12 @@ function receiveUpload(req: Request, res: Response): Promise<boolean> {
   return new Promise((resolve) => {
     upload.single('file')(req, res, (err: unknown) => {
       if (!err) return resolve(true);
-      const message =
-        err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE'
-          ? `File is larger than ${MAX_UPLOAD_BYTES / 1024 / 1024} MB.`
-          : `Upload failed: ${(err as Error).message}`;
-      res.status(400).json({ error: message });
+      if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        res.status(400).json({ error: `File is larger than ${MAX_UPLOAD_BYTES / 1024 / 1024} MB.`, code: 'too_large' });
+      } else {
+        console.warn('[ingest] upload_failed:', (err as Error).message);
+        res.status(400).json({ error: 'The upload could not be processed. Please try again.', code: 'upload_failed' });
+      }
       resolve(false);
     });
   });
@@ -109,7 +110,9 @@ export function createEmailsRouter(repo: EmailRepository, queue: AnalysisQueue):
       res.status(201).json(repo.getEmail(email.id));
     } catch (err) {
       if (err instanceof IngestionError) {
-        res.status(400).json({ error: err.message });
+        // Library details stay in the server log; the client gets a fixed message and a code.
+        if (err.detail) console.warn(`[ingest] ${err.code}: ${err.detail}`);
+        res.status(400).json({ error: err.message, code: err.code });
         return;
       }
       throw err;

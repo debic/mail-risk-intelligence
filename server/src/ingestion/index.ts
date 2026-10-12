@@ -38,22 +38,22 @@ export function ingestText(text: string): IngestedEmail {
 export async function ingestFile(filename: string, data: Buffer): Promise<IngestedEmail> {
   const extension = filename.toLowerCase().match(/\.[a-z0-9]+$/)?.[0] ?? '';
   if (!SUPPORTED_EXTENSIONS.includes(extension)) {
-    throw new IngestionError(`Only ${SUPPORTED_EXTENSIONS.join(', ')} files are supported.`);
+    throw new IngestionError('unsupported_type', `Only ${SUPPORTED_EXTENSIONS.join(', ')} files are supported.`);
   }
-  if (data.length === 0) throw new IngestionError('The file is empty.');
-  if (data.length > MAX_UPLOAD_BYTES) throw new IngestionError('File is larger than 5 MB.');
+  if (data.length === 0) throw new IngestionError('empty', 'The file is empty.');
+  if (data.length > MAX_UPLOAD_BYTES) throw new IngestionError('too_large', 'File is larger than 5 MB.');
 
   if (extension === '.pdf') {
-    if (!looksLikePdf(data)) throw new IngestionError('This file is named .pdf but is not a PDF.');
+    if (!looksLikePdf(data)) throw new IngestionError('not_pdf', 'This file is named .pdf but is not a PDF.');
     return parsePdf(data, filename);
   }
 
   if (looksBinary(data)) {
-    throw new IngestionError(`This file is named ${extension} but does not contain text.`);
+    throw new IngestionError('binary_content', `This file is named ${extension} but does not contain text.`);
   }
   if (extension === '.eml') {
     if (!EMAIL_HEADER.test(data.subarray(0, 16384).toString('utf8'))) {
-      throw new IngestionError('This .eml file has no email headers (From, To, Subject...).');
+      throw new IngestionError('no_headers', 'This .eml file has no email headers (From, To, Subject...).');
     }
     return parseEml(data);
   }

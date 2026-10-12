@@ -125,5 +125,7 @@ export interface NewEmailInput {
 
 export interface ApiError {
   error: string;
+  /** Machine-readable error class, e.g. "not_pdf" or "too_large". */
+  code?: string;
   details?: string[];
 }
