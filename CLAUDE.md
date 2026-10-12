@@ -154,7 +154,7 @@ Update the checkboxes as steps are completed.
 
 ### Stage 5: Add email (30 min)
 - [ ] 5.1 Form: paste raw text or upload `.txt`, `.eml`, `.pdf`
-- [ ] 5.2 Server-side parsing (pdf-parse for PDF, basic .eml parsing)
+- [x] 5.2 Server-side parsing (pdf-parse for PDF, basic .eml parsing)
 - [ ] 5.3 "Analyzing..." state while the pipeline runs
 
 ### Stage 6: Tests (20 min)

@@ -1,0 +1,28 @@
+From: "Dana Whitfield" <dana.whitfield.home@gmail.com>
+To: payroll@arcline.com
+Subject: Update to my direct deposit before Friday
+Date: Wed, 17 Jun 2026 16:40:00 +0000
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY"
+
+--BOUNDARY
+Content-Type: text/plain; charset=utf-8
+
+Hi Payroll team,
+
+I recently switched banks. Please update my direct deposit so this Friday's salary goes to the new account in the attached form. I'm writing from my personal email because I can't log into the VPN while travelling.
+
+Thanks,
+Dana Whitfield, Sales
+
+--BOUNDARY
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: attachment; filename="direct_deposit_form.txt"
+
+Direct deposit change form
+Employee: Dana Whitfield
+New bank: Coastal Digital Bank
+Routing number: 121000358
+Account number ending: 4471
+Effective: next pay run
+--BOUNDARY--

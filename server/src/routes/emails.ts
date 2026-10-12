@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { Router } from 'express';
+import { Router, type Request, type Response } from 'express';
+import multer from 'multer';
 import { z } from 'zod';
+import { ingestFile, ingestText, IngestionError, MAX_UPLOAD_BYTES } from '../ingestion/index.js';
 import type { RawEmail } from '../../../shared/types.js';
 import type { AnalysisQueue } from '../pipeline/queue.js';
 import type { EmailRepository } from '../storage/emailRepository.js';
@@ -19,6 +21,23 @@ const NewEmailSchema = z.object({
     .max(10)
     .optional(),
 });
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 } });
+
+/** Run multer and turn its errors (e.g. file too large) into a readable 400. */
+function receiveUpload(req: Request, res: Response): Promise<boolean> {
+  return new Promise((resolve) => {
+    upload.single('file')(req, res, (err: unknown) => {
+      if (!err) return resolve(true);
+      const message =
+        err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE'
+          ? `File is larger than ${MAX_UPLOAD_BYTES / 1024 / 1024} MB.`
+          : `Upload failed: ${(err as Error).message}`;
+      res.status(400).json({ error: message });
+      resolve(false);
+    });
+  });
+}
 
 export function newEmailId(): string {
   return `U-${randomUUID().slice(0, 8)}`;
@@ -63,6 +82,38 @@ export function createEmailsRouter(repo: EmailRepository, queue: AnalysisQueue):
     repo.insertEmail(email, 'paste');
     queue.kick();
     res.status(201).json(repo.getEmail(email.id));
+  });
+
+  // Raw input from the "Add email" dialog: multipart with a "file" (.txt/.eml/.pdf) or a "text" field.
+  router.post('/ingest', async (req, res) => {
+    if (!(await receiveUpload(req, res))) return;
+    try {
+      const text = typeof req.body?.text === 'string' ? req.body.text : '';
+      const ingested = req.file
+        ? await ingestFile(req.file.originalname, req.file.buffer)
+        : text.trim()
+          ? ingestText(text)
+          : null;
+      if (!ingested) {
+        res.status(400).json({ error: 'Paste the email text or choose a file.' });
+        return;
+      }
+      if (ingested.body.length > MAX_BODY_CHARS) {
+        res.status(400).json({ error: 'The email is too long to analyze (50,000 characters max).' });
+        return;
+      }
+
+      const email: RawEmail = { id: newEmailId(), ...ingested };
+      repo.insertEmail(email, req.file ? 'upload' : 'paste');
+      queue.kick();
+      res.status(201).json(repo.getEmail(email.id));
+    } catch (err) {
+      if (err instanceof IngestionError) {
+        res.status(400).json({ error: err.message });
+        return;
+      }
+      throw err;
+    }
   });
 
   // Retry a failed analysis, or re-analyze a finished one.
