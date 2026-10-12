@@ -1,33 +1,33 @@
-import { useEffect, useState } from 'react'
-import type { RawEmail } from '../../shared/types'
+import { useState } from 'react'
+import { AppHeader, type View } from './components/AppHeader'
+import { EmptyState } from './components/EmptyState'
+import { SplitLayout } from './components/SplitLayout'
 
-// Stage 1: plain list to prove client and server are connected.
 function App() {
-  const [emails, setEmails] = useState<RawEmail[]>([])
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    fetch('/api/emails')
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.json()
-      })
-      .then(setEmails)
-      .catch((err: Error) => setError(err.message))
-  }, [])
+  const [view, setView] = useState<View>('inbox')
+  const [selectedId] = useState<string | null>(null)
 
   return (
-    <main>
-      <h1>Mail Risk Intelligence</h1>
-      {error && <p role="alert">Could not load emails: {error}</p>}
-      <ul>
-        {emails.map((email) => (
-          <li key={email.id}>
-            <strong>{email.from}</strong> | {email.subject} | {email.date}
-          </li>
-        ))}
-      </ul>
-    </main>
+    <>
+      <AppHeader view={view} onViewChange={setView} onAddEmail={() => {}} />
+      <main>
+        {view === 'inbox' ? (
+          <SplitLayout
+            showDetailOnMobile={selectedId !== null}
+            list={<EmptyState title="Inbox">The email list arrives in step 4.2.</EmptyState>}
+            detail={
+              <EmptyState title="Select an email">
+                Choose an email from the list to see its risk assessment, extracted facts and entities.
+              </EmptyState>
+            }
+          />
+        ) : (
+          <EmptyState icon="◎" title="Knowledge graph">
+            Entities and relationships across all emails will appear here.
+          </EmptyState>
+        )}
+      </main>
+    </>
   )
 }
 

@@ -144,7 +144,7 @@ Update the checkboxes as steps are completed.
 - [x] 3.3 Endpoints: list emails, get one, add new, retry a failed one
 
 ### Stage 4: Main UI (1 h 30 min) - main focus
-- [ ] 4.1 Design tokens: colors, spacing, type scale, risk badge colors
+- [x] 4.1 Design tokens: colors, spacing, type scale, risk badge colors
 - [ ] 4.2 Inbox list with color-coded risk badge (with text label)
 - [ ] 4.3 Detail view: original, extraction, rationale, tags
 - [ ] 4.4 Entities and relationships panel
