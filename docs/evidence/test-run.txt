@@ -1,0 +1,130 @@
+# npm test, run on 2026-10-12 17:23 (Node v24.16.0)
+
+## server
+ RUN  v5.0.4 /Users/admin/mail-risk-intelligence/server
+ ✓ test/emailRepository.test.ts > normalizeEntityKey > ignores case, punctuation and company suffixes
+ ✓ test/emailRepository.test.ts > normalizeEntityKey > keeps different types apart
+ ✓ test/emailRepository.test.ts > emailRepository > links the same supplier across emails as one entity (knowledge graph)
+ ✓ test/emailRepository.test.ts > emailRepository > never stores the same email twice
+ ✓ test/parseModelJson.test.ts > parseModelJson: valid output > parses a valid extraction
+ ✓ test/parseModelJson.test.ts > parseModelJson: valid output > accepts JSON wrapped in a markdown code fence
+ ✓ test/parseModelJson.test.ts > parseModelJson: valid output > fills missing optional lists with defaults
+ ✓ test/parseModelJson.test.ts > parseModelJson: garbage output > rejects plain prose
+ ✓ test/parseModelJson.test.ts > parseModelJson: garbage output > rejects truncated JSON
+ ✓ test/parseModelJson.test.ts > parseModelJson: garbage output > rejects an empty response
+ ✓ test/parseModelJson.test.ts > parseModelJson: garbage output > rejects JSON missing a required field
+ ✓ test/parseModelJson.test.ts > parseModelJson: garbage output > rejects an invented risk level
+ ✓ test/parseModelJson.test.ts > parseModelJson: garbage output > rejects a JSON array instead of an object
+ ✓ test/parseModelJson.test.ts > RiskAnalysisSchema normalization > normalizes and de-duplicates tags
+ ✓ test/parseModelJson.test.ts > RiskAnalysisSchema normalization > drops placeholder tags
+ ✓ test/parseModelJson.test.ts > RiskAnalysisSchema normalization > normalizes relationship types to snake_case
+ ✓ test/parseModelJson.test.ts > RiskAnalysisSchema normalization > drops relationships pointing to undeclared entities
+ ✓ test/parseModelJson.test.ts > RiskAnalysisSchema normalization > maps unknown entity types to "other" instead of failing
+ ✓ test/orchestrator.test.ts > analyzeEmail > runs Agent A then Agent B and returns done
+ ✓ test/orchestrator.test.ts > analyzeEmail > retries a transient failure once, then succeeds
+ ✓ test/orchestrator.test.ts > analyzeEmail > retries garbage model output once
+ ✓ test/orchestrator.test.ts > analyzeEmail > gives up after one retry and reports the failing stage
+ ✓ test/orchestrator.test.ts > analyzeEmail > does not retry when the API key is missing
+ ✓ test/orchestrator.test.ts > analyzeEmail > does not retry a rejected key (HTTP 401)
+ ✓ test/orchestrator.test.ts > analyzeEmail > keeps Agent A output when Agent B fails
+ ✓ test/orchestrator.test.ts > analyzeEmail > never throws, even on unexpected errors
+ ✓ test/ingestion.test.ts > ingestText > reads headers and body from pasted text
+ ✓ test/ingestion.test.ts > ingestText > uses the first line as subject when there are no headers
+ ✓ test/ingestion.test.ts > ingestText > rejects empty text
+ ✓ test/ingestion.test.ts > ingestText > rejects headers without a body
+ ✓ test/ingestion.test.ts > ingestFile > rejects unsupported file types
+ ✓ test/ingestion.test.ts > ingestFile > rejects empty files
+ ✓ test/ingestion.test.ts > ingestFile > parses a .txt sample
+ ✓ test/ingestion.test.ts > ingestFile > parses an .eml sample including its text attachment
+ ✓ test/ingestion.test.ts > ingestFile > extracts text from a .pdf sample
+ ✓ test/ingestion.test.ts > ingestFile: renamed, malformed and oversized files > rejects an image renamed as .pdf
+ ✓ test/ingestion.test.ts > ingestFile: renamed, malformed and oversized files > rejects binary content renamed as .txt
+ ✓ test/ingestion.test.ts > ingestFile: renamed, malformed and oversized files > rejects binary content renamed as .eml
+ ✓ test/ingestion.test.ts > ingestFile: renamed, malformed and oversized files > rejects an .eml without email headers
+ ✓ test/ingestion.test.ts > ingestFile: renamed, malformed and oversized files > rejects a corrupted PDF with a fixed message and keeps library details out of it
+ ✓ test/ingestion.test.ts > ingestFile: renamed, malformed and oversized files > classifies each rejection with a code
+ ✓ test/ingestion.test.ts > ingestFile: renamed, malformed and oversized files > rejects files over 5 MB
+ ✓ test/ingestion.test.ts > ingestFile: renamed, malformed and oversized files > accepts UTF-8 text with accents and symbols
+ ✓ test/ingestion.test.ts > parseAddressList (regression: display names with commas) > keeps "Smith, John <john@example.com>" as one address
+ ✓ test/ingestion.test.ts > parseAddressList (regression: display names with commas) > handles quoted names, commas and semicolons in one list
+ ✓ test/ingestion.test.ts > parseAddressList (regression: display names with commas) > keeps a value with no address as-is
+ ✓ test/ingestion.test.ts > parseAddressList (regression: display names with commas) > is used for pasted To and Cc headers
+ ✓ test/api.test.ts > POST /api/emails/ingest > rejects an unsupported type with a 400 and stores nothing
+ ✓ test/api.test.ts > POST /api/emails/ingest > rejects an empty file with a 400 and stores nothing
+ ✓ test/api.test.ts > POST /api/emails/ingest > rejects an image renamed as .pdf with a 400 and stores nothing
+ ✓ test/api.test.ts > POST /api/emails/ingest > rejects binary renamed as .txt with a 400 and stores nothing
+ ✓ test/api.test.ts > POST /api/emails/ingest > rejects an .eml without headers with a 400 and stores nothing
+ ✓ test/api.test.ts > POST /api/emails/ingest > returns a fixed message and a code, never the parser error, for a corrupted PDF
+ ✓ test/api.test.ts > POST /api/emails/ingest > rejects a file over 5 MB with a 400
+ ✓ test/api.test.ts > POST /api/emails/ingest > stores a valid email as queued and starts the analysis
+ ✓ test/api.test.ts > POST /api/emails/ingest > returns 404 for an unknown email
+ Test Files  5 passed (5)
+      Tests  56 passed (56)
+
+## client
+ RUN  v5.0.4 /Users/admin/mail-risk-intelligence/client
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > components/AddEmailDialog.module.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > components/AppHeader.module.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > components/EmailDetail.module.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > components/EmailList.module.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > components/EmptyState.module.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > components/EntitiesPanel.module.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > components/GraphView.module.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > components/RiskBadge.module.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > components/SplitLayout.module.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > components/Tag.module.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > styles/global.css has no hardcoded colors
+ ✓ src/__tests__/design-tokens.test.ts > design tokens are the only source of color > every var(--token) used in a stylesheet is defined in tokens.css
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-text on --color-surface
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-text on --color-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-text on --color-surface-selected
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-text-muted on --color-surface
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-text-muted on --color-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-text-muted on --color-surface-sunken
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-text-subtle on --color-surface
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-text-subtle on --color-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-accent on --color-surface
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-accent on --color-accent-soft
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-on-accent on --color-accent
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-danger on --color-surface
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --color-danger on --color-danger-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --risk-high-fg on --risk-high-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --risk-medium-fg on --risk-medium-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --risk-low-fg on --risk-low-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --risk-none-fg on --risk-none-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: text (WCAG AA, 4.5:1) > --status-fg on --status-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: non-text UI (WCAG 1.4.11, 3:1) > --color-border-input on --color-surface
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: non-text UI (WCAG 1.4.11, 3:1) > --color-border-input on --color-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: non-text UI (WCAG 1.4.11, 3:1) > --color-focus on --color-surface
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: non-text UI (WCAG 1.4.11, 3:1) > --color-focus on --color-bg
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: non-text UI (WCAG 1.4.11, 3:1) > --color-focus on --color-surface-selected
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: non-text UI (WCAG 1.4.11, 3:1) > --color-focus on --color-accent-soft
+ ✓ src/__tests__/tokens-contrast.test.ts > design token contrast: non-text UI (WCAG 1.4.11, 3:1) > --color-danger on --color-surface
+ ✓ src/__tests__/validateFile.test.ts > validateFile (Add email dialog) > accepts email.txt
+ ✓ src/__tests__/validateFile.test.ts > validateFile (Add email dialog) > accepts email.eml
+ ✓ src/__tests__/validateFile.test.ts > validateFile (Add email dialog) > accepts invoice.PDF
+ ✓ src/__tests__/validateFile.test.ts > validateFile (Add email dialog) > rejects unsupported types before uploading
+ ✓ src/__tests__/validateFile.test.ts > validateFile (Add email dialog) > rejects empty files
+ ✓ src/__tests__/validateFile.test.ts > validateFile (Add email dialog) > rejects files over 5 MB
+ ✓ src/__tests__/RiskBadge.test.tsx > RiskBadge > shows a text label for high risk, not only a color
+ ✓ src/__tests__/RiskBadge.test.tsx > RiskBadge > shows a text label for medium risk, not only a color
+ ✓ src/__tests__/RiskBadge.test.tsx > RiskBadge > shows a text label for low risk, not only a color
+ ✓ src/__tests__/RiskBadge.test.tsx > RiskBadge > shows a text label for none risk, not only a color
+ ✓ src/__tests__/RiskBadge.test.tsx > RiskBadge > keeps the colored marker hidden from screen readers
+ ✓ src/__tests__/RiskBadge.test.tsx > RiskBadge > shows the queued pipeline state
+ ✓ src/__tests__/RiskBadge.test.tsx > RiskBadge > shows the analyzing pipeline state
+ ✓ src/__tests__/RiskBadge.test.tsx > RiskBadge > shows the failed pipeline state
+ ✓ src/__tests__/RiskBadge.test.tsx > RiskBadge > never shows a failed analysis as a risk level
+ ✓ src/__tests__/EmailDetail.test.tsx > EmailDetail > shows the risk level and rationale
+ ✓ src/__tests__/EmailDetail.test.tsx > EmailDetail > never turns defanged hxxp:// links into clickable links
+ ✓ src/__tests__/EmailDetail.test.tsx > EmailDetail > explains a failed analysis in plain language and offers a retry
+ ✓ src/__tests__/EmailDetail.test.tsx > EmailDetail > tells the user when an analysis is still running
+ ✓ src/__tests__/AddEmailDialog.test.tsx > AddEmailDialog submit state > says "Adding email…" while pasted text is being sent
+ ✓ src/__tests__/AddEmailDialog.test.tsx > AddEmailDialog submit state > shows the server error inside the dialog and lets the user try again
+ ✓ src/__tests__/a11y.test.tsx > accessibility (axe-core, WCAG 2 A/AA) > inbox list with filters, risk badges and pending state
+ ✓ src/__tests__/a11y.test.tsx > accessibility (axe-core, WCAG 2 A/AA) > inbox loading and error states
+ ✓ src/__tests__/a11y.test.tsx > accessibility (axe-core, WCAG 2 A/AA) > email detail with risk card, key facts, entities and relationships
+ ✓ src/__tests__/a11y.test.tsx > accessibility (axe-core, WCAG 2 A/AA) > failed analysis with retry
+ ✓ src/__tests__/a11y.test.tsx > accessibility (axe-core, WCAG 2 A/AA) > add email dialog
+ Test Files  7 passed (7)
+      Tests  63 passed (63)

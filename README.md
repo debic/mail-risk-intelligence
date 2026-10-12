@@ -3,7 +3,7 @@
 Emails land in a mailbox, two chained AI agents analyze them, and the UI shows who is involved, what they want, and whether it looks risky (fraud, phishing, insider threat, market abuse, harassment).
 
 > **Track: UI-focused.** Extra effort went into design, responsiveness, accessibility, UI states and the knowledge graph.
-> **Time spent:** about 4h30 (30 min planning, 4h building). How I used AI tools: [PROCESS.md](PROCESS.md).
+> **Time spent:** about 4h25 (30 min planning, 3h55 building). How I used AI tools: [PROCESS.md](PROCESS.md).
 
 ![Inbox and email detail](docs/screenshots/inbox-detail.png)
 
@@ -23,7 +23,7 @@ npm run dev            # http://localhost:5173
 
 **Without a key the app still works:** the 10 seed emails load from a committed snapshot of their analysis, and new emails show a clear "AI service not configured" state with Retry. Try **Add email** with the files in [`samples/`](samples/).
 
-`npm test` runs 99 tests (no API calls). `npm run eval -w server` checks the 10 seeds against my expected risk levels (10/10).
+`npm test` runs 119 tests (no API calls). `npm run eval -w server` checks the 10 seeds against my expected risk levels (10/10). With the app running, `npm run check:responsive` checks every main view at 5 widths in your installed Chrome.
 
 ## Architecture
 
@@ -60,9 +60,16 @@ Adding an email returns immediately as `queued`; a background queue runs Agent A
 | Server: API (HTTP) | 9 | bad uploads return 400 and store nothing, library errors never reach the client, oversized files, valid upload is queued, 404 |
 | UI: components | 21 | risk badge labels, failure and retry states, `hxxp://` never clickable, file validation, add email submit and error states |
 | UI: accessibility (axe-core) | 5 | WCAG 2 A/AA rules on the inbox, loading/error states, email detail with entities, failed state, add email dialog |
-| UI: token contrast | 17 | every text/background pair in `tokens.css` is at least 4.5:1 |
+| UI: token contrast | 25 | 18 text/background pairs at 4.5:1 (WCAG AA), plus input borders and the focus ring on every surface at 3:1 (WCAG 1.4.11) |
+| UI: design token guard | 12 | no hardcoded color in any stylesheet, and every `var(--token)` used is defined in `tokens.css` |
 
-axe runs in jsdom, which cannot compute rendered colors, so contrast is checked from the design tokens instead. On top of the automated suite, I ran a full-page axe audit in the browser on the inbox, email detail, graph and add email dialog at 375, 768, 1280 and 1440px, and tested keyboard-only navigation (0 violations after fixing 3 issues it found).
+axe runs in jsdom, which cannot compute rendered colors, so contrast is checked from the design tokens instead. Risk markers and row stripes are decorative (the text label carries the meaning), so they are not held to a contrast minimum. Layout was also checked with very long senders, subjects, IBANs, URLs and entity names at 375 and 1280px: no horizontal overflow.
+
+**Responsive acceptance check** (`npm run check:responsive`): opens the inbox, an email detail, the Add email dialog and the graph at **320, 375, 768, 900 and 1280px** and fails on horizontal scroll, controls off-screen or clipped, tap targets under 24px, wrapped button labels, a dialog that does not fit, a graph area under 280px, or the wrong layout (one panel with Back below 900px, two panels from 900px). Current result: all 20 views pass. It caught one issue, now fixed: the dialog buttons wrapped their labels at 320px, so on phones they now stack full width.
+
+Saved outputs of the test suite, the responsive check and all 4 eval runs are in [`docs/evidence/`](docs/evidence/).
+
+**Manual checks:** on top of the automated suite, I ran a full-page axe audit in the browser on the inbox, email detail, graph and add email dialog at 375, 768, 1280 and 1440px, and tested keyboard-only navigation (0 violations after fixing 3 issues it found).
 
 ## Limitations and next steps
 

@@ -1,0 +1,24 @@
+# npm run check:responsive, run on 2026-10-12 17:23 against the local dev server
+
+  320px  inbox   ok
+  320px  detail  ok
+  320px  dialog  ok
+  320px  graph   ok
+  375px  inbox   ok
+  375px  detail  ok
+  375px  dialog  ok
+  375px  graph   ok
+  768px  inbox   ok
+  768px  detail  ok
+  768px  dialog  ok
+  768px  graph   ok
+  900px  inbox   ok
+  900px  detail  ok
+  900px  dialog  ok
+  900px  graph   ok
+ 1280px  inbox   ok
+ 1280px  detail  ok
+ 1280px  dialog  ok
+ 1280px  graph   ok
+
+All 20 views pass at 320, 375, 768, 900, 1280px.

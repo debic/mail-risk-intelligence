@@ -1,0 +1,72 @@
+# npm run eval -w server, 2026-10-12, model openai/gpt-oss-120b on Groq (free tier)
+# Output copied verbatim from the terminal during the build (long error messages are cut by the script).
+# Each run compares the pipeline's risk level with the expected baseline in CLAUDE.md.
+# Re-run it yourself with a GROQ_API_KEY in .env: about 20 API calls, about 2 minutes.
+
+## Run 1 (before any tuning): 3/10, free-tier rate limit hit after 3 emails
+ID    Expected     Got      OK    Tags
+E001  high         high     OK    urgency, impersonation, lookalike-domain, payment-change, financial-anomaly
+E002  none         none     OK    -
+E003  high         high     OK    data-exfiltration, insider-threat, secrecy
+E004  high         FAILED   MISS  risk: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+E005  high         FAILED   MISS  risk: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+E006  high         FAILED   MISS  extraction: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+E007  none         FAILED   MISS  risk: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+E008  high         FAILED   MISS  risk: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+E009  none         FAILED   MISS  extraction: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+E010  medium/high  FAILED   MISS  risk: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+
+Result: 3/10 match the expected risk level
+# Fix: reasoning_effort low + wait the time Groq asks for before retrying.
+
+## Run 2: 4/10, still rate limited, and lower reasoning under-rated non-financial risks
+ID    Expected     Got      OK    Tags
+E001  high         high     OK    urgency, secrecy, impersonation, lookalike-domain, payment-change, financial-anomaly
+E002  none         none     OK    none
+E003  high         high     OK    data-exfiltration, insider-threat
+E004  high         FAILED   MISS  risk: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+E005  high         medium   MISS  mnpi-risk, insider-threat
+      rationale: The email discloses non‑public information about the Halvorsen deal to a personal external address, creating a potential insider‑trading risk. No spoofing or payment fraud is present, but the confidential deal detail warrants review.
+E006  high         medium   MISS  threat-language, harassment
+      rationale: The email contains threatening language toward an Arcline employee, indicating potential harassment. No financial or phishing elements are present, but the threat warrants review.
+E007  none         FAILED   MISS  extraction: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+E008  high         FAILED   MISS  risk: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+E009  none         low      MISS  financial-anomaly
+      rationale: The email is a standard invoice from a known supplier domain (northgate-suppliers.com) to Arcline's accounts payable with no urgent or suspicious language, spoofed domains, or unusual payment changes.
+E010  medium/high  medium   OK    whistleblower, accounting-irregularity, financial-anomaly
+
+Result: 4/10 match the expected risk level
+# Fix: proactive throttle on Groq's remaining-token headers; prompt severity rules
+# ("each category is serious on its own"), a consistency rule, no placeholder tags.
+
+## Run 3: 9/10, the polite supplier bank-change email came out medium
+ID    Expected     Got      OK    Tags
+E001  high         high     OK    urgency, impersonation, lookalike-domain, financial-anomaly
+E002  none         none     OK    -
+E003  high         high     OK    data-exfiltration, insider-threat
+E004  high         medium   MISS  payment-change, financial-anomaly, urgency
+      rationale: The email requests payment to a new bank account for a sizable invoice, which is a common payment‑fraud indicator, but there is no overt urgency, threat, or impersonation beyond the account change.
+E005  high         high     OK    mnpi-risk, insider-trading, data-exfiltration
+E006  high         high     OK    threat-language, harassment
+E007  none         none     OK    -
+E008  high         high     OK    impersonation, lookalike-domain, phishing, credential-request, urgency
+E009  none         none     OK    -
+E010  medium/high  medium   OK    insider-threat, accounting-irregularity, whistleblower
+
+Result: 9/10 match the expected risk level
+# Fix: one prompt rule for the classic invoice-fraud pattern (changed supplier bank details).
+
+## Run 4 (committed in 5ce867c): 10/10, no rate-limit errors, 1m53s
+ID    Expected     Got      OK    Tags
+E001  high         high     OK    urgency, impersonation, lookalike-domain, payment-change, financial-anomaly, secrecy
+E002  none         none     OK    -
+E003  high         high     OK    data-exfiltration, insider-threat, confidentiality
+E004  high         high     OK    payment-change, financial-anomaly, impersonation
+E005  high         high     OK    insider-trading, mnpi-risk, urgency
+E006  high         high     OK    threat-language, harassment
+E007  none         none     OK    -
+E008  high         high     OK    impersonation, lookalike-domain, phishing, credential-request, suspicious-link, urgency
+E009  none         none     OK    -
+E010  medium/high  medium   OK    accounting-irregularity, whistleblower
+
+Result: 10/10 match the expected risk level
