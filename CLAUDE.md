@@ -121,11 +121,11 @@ Update the checkboxes as steps are completed.
 - [x] 0.3 Create GitHub repo `debic/mail-risk-intelligence` (README + Node .gitignore)
 - [x] 0.4 Clone and open in VS Code
 - [x] 0.5 Create `process-notes.md` (gitignored, personal notes for PROCESS.md)
-- [ ] 0.6 Add `CLAUDE.md`, `docs/ASSIGNMENT.md` and `data/mock_mailbox_data.json`, commit and push
-- [ ] 0.7 Claude Code proposes an architecture plan; I review and adjust it before any code
+- [x] 0.6 Add `CLAUDE.md`, `docs/ASSIGNMENT.md` and `data/mock_mailbox_data.json`, commit and push
+- [x] 0.7 Claude Code proposes an architecture plan; I review and adjust it before any code
 
 ### Stage 1: Project skeleton (30 min)
-- [ ] 1.1 Create `client/` (Vite + React + TS) and `server/` (Express + TS)
+- [x] 1.1 Create `client/` (Vite + React + TS) and `server/` (Express + TS)
 - [ ] 1.2 Create server folders: `ingestion/`, `agents/`, `storage/`, `routes/`
 - [ ] 1.3 Add `.env.example` and load `GROQ_API_KEY` from `.env`
 - [ ] 1.4 Simple endpoint that returns the 10 seed emails (no AI yet)
