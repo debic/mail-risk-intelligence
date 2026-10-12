@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS analyses (
   risk_rationale TEXT,
   risk_tags      TEXT NOT NULL DEFAULT '[]',
   model          TEXT,
+  prompt_version TEXT,                      -- e.g. extraction-v2+risk-v5
   duration_ms    INTEGER,
   analyzed_at    TEXT NOT NULL
 );
@@ -65,6 +66,14 @@ CREATE INDEX IF NOT EXISTS idx_email_entities_entity ON email_entities(entity_id
 CREATE INDEX IF NOT EXISTS idx_relationships_email ON relationships(email_id);
 `;
 
+/** Additive migrations for databases created by an older version of the schema. */
+function migrate(db: Db): void {
+  const columns = db.prepare('PRAGMA table_info(analyses)').all() as { name: string }[];
+  if (!columns.some((column) => column.name === 'prompt_version')) {
+    db.exec('ALTER TABLE analyses ADD COLUMN prompt_version TEXT');
+  }
+}
+
 /** Open (or create) the database and make sure the schema exists. Pass ":memory:" in tests. */
 export function openDb(path: string = DEFAULT_DB_PATH): Db {
   if (path !== ':memory:') {
@@ -74,5 +83,6 @@ export function openDb(path: string = DEFAULT_DB_PATH): Db {
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   db.exec(SCHEMA);
+  migrate(db);
   return db;
 }

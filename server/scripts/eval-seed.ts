@@ -1,7 +1,7 @@
 // Evaluate the pipeline against the expected risk levels for the seed data (see CLAUDE.md).
 // Dev tool only, not part of the app: `npm run eval -w server`
 import { loadSeedEmails } from '../src/ingestion/seed.js';
-import { analyzeEmail } from '../src/agents/orchestrator.js';
+import { analyzeEmail } from '../src/pipeline/orchestrator.js';
 
 const EXPECTED: Record<string, string[]> = {
   E001: ['high'],

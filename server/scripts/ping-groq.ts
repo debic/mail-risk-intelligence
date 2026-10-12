@@ -1,5 +1,5 @@
 // Quick connectivity check: `npm run ping:groq -w server`
-import { callGroq, LlmError } from '../src/agents/groqClient.js';
+import { callGroq, LlmError } from '../src/llm/groqClient.js';
 
 try {
   const reply = await callGroq({

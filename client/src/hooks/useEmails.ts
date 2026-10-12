@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { EmailListItem } from '../../../shared/types'
 import { api } from '../api/client'
-
-const POLL_MS = 2000
+import { POLL_MS } from '../config'
 
 export const isPending = (email: EmailListItem) => email.status === 'queued' || email.status === 'analyzing'
 

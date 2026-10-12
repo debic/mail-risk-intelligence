@@ -1,12 +1,13 @@
 import { useEffect, useId, useRef, useState, type DragEvent, type FormEvent, type KeyboardEvent } from 'react'
 import type { EmailDetail } from '../../../shared/types'
 import { api } from '../api/client'
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL, SUPPORTED_EXTENSIONS } from '../config'
 import styles from './AddEmailDialog.module.css'
 
 type Mode = 'paste' | 'upload'
 
-const ACCEPTED = ['.txt', '.eml', '.pdf']
-const MAX_BYTES = 5 * 1024 * 1024
+const ACCEPTED = SUPPORTED_EXTENSIONS
+const ACCEPTED_LIST = `${ACCEPTED.slice(0, -1).join(', ')} and ${ACCEPTED.at(-1)}`
 
 const PLACEHOLDER = `From: sender@example.com
 To: you@arcline.com
@@ -23,9 +24,9 @@ interface AddEmailDialogProps {
 /** Client-side check so obvious mistakes are caught before uploading. */
 export function validateFile(file: File): string | null {
   const name = file.name.toLowerCase()
-  if (!ACCEPTED.some((ext) => name.endsWith(ext))) return 'Only .txt, .eml and .pdf files are supported.'
+  if (!ACCEPTED.some((ext) => name.endsWith(ext))) return `Only ${ACCEPTED_LIST} files are supported.`
   if (file.size === 0) return 'The file is empty.'
-  if (file.size > MAX_BYTES) return 'File is larger than 5 MB.'
+  if (file.size > MAX_UPLOAD_BYTES) return `File is larger than ${MAX_UPLOAD_LABEL}.`
   return null
 }
 
@@ -190,7 +191,9 @@ export function AddEmailDialog({ open, onClose, onCreated }: AddEmailDialogProps
                 <span className={styles.dropTitle}>
                   Drop a file here or <span className={styles.browse}>browse</span>
                 </span>
-                <span className={styles.dropHint}>.txt, .eml or .pdf, up to 5 MB</span>
+                <span className={styles.dropHint}>
+                  {ACCEPTED.join(', ')}, up to {MAX_UPLOAD_LABEL}
+                </span>
               </label>
               {file && (
                 <div className={styles.fileRow}>

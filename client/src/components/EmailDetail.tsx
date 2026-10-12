@@ -220,6 +220,7 @@ export function EmailDetail({
         <p className={styles.footnote}>
           Analyzed by {email.analysis.model}
           {email.analysis.durationMs ? ` in ${(email.analysis.durationMs / 1000).toFixed(1)}s` : ''}
+          {email.analysis.promptVersion && ` · prompts ${email.analysis.promptVersion}`}
         </p>
       )}
     </article>

@@ -1,9 +1,7 @@
 // Thin wrapper around Groq's OpenAI-compatible chat completions API.
 // Returns the raw model text; parsing and validation happen in each agent.
 
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const DEFAULT_MODEL = 'openai/gpt-oss-120b';
-const DEFAULT_TIMEOUT_MS = 20_000;
+import { config } from '../config.js';
 
 export type LlmErrorKind = 'no_key' | 'timeout' | 'http' | 'network' | 'empty' | 'bad_json';
 
@@ -42,8 +40,6 @@ export function parseRetryAfter(headers: Headers): number | undefined {
 
 // Client-side throttle for Groq's tokens-per-minute limit. Groq reports the remaining budget
 // on every response; when it runs low we wait for it to refill instead of hitting a 429.
-const MIN_TOKENS_BEFORE_CALL = 4500; // a full Agent B call with the hardened prompt uses about 3-4K tokens
-const MAX_THROTTLE_WAIT_MS = 60_000;
 let budget: { remaining: number; limitPerMinute: number; seenAt: number } | null = null;
 
 function rememberBudget(headers: Headers): void {
@@ -54,17 +50,17 @@ function rememberBudget(headers: Headers): void {
   }
 }
 
-/** How long to wait so the token budget refills to MIN_TOKENS_BEFORE_CALL (0 if it already has). */
+/** How long to wait so the token budget refills to config.rateLimit.minTokensBeforeCall (0 if it already has). */
 export function throttleWaitMs(now = Date.now()): number {
   if (!budget) return 0;
   const tokensPerMs = budget.limitPerMinute / 60_000;
   const refilled = budget.remaining + (now - budget.seenAt) * tokensPerMs;
-  const missing = Math.min(MIN_TOKENS_BEFORE_CALL, budget.limitPerMinute) - refilled;
-  return missing <= 0 ? 0 : Math.min(Math.ceil(missing / tokensPerMs), MAX_THROTTLE_WAIT_MS);
+  const missing = Math.min(config.rateLimit.minTokensBeforeCall, budget.limitPerMinute) - refilled;
+  return missing <= 0 ? 0 : Math.min(Math.ceil(missing / tokensPerMs), config.rateLimit.maxThrottleWaitMs);
 }
 
 export function getModelName(): string {
-  return process.env.GROQ_MODEL || DEFAULT_MODEL;
+  return config.llm.model;
 }
 
 export async function callGroq(options: CallGroqOptions): Promise<string> {
@@ -81,10 +77,10 @@ export async function callGroq(options: CallGroqOptions): Promise<string> {
 }
 
 async function requestCompletion(
-  { system, user, timeoutMs = DEFAULT_TIMEOUT_MS }: CallGroqOptions,
+  { system, user, timeoutMs = config.llm.timeoutMs }: CallGroqOptions,
   jsonMode: boolean,
 ): Promise<string> {
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = config.llm.apiKey;
   if (!apiKey) {
     throw new LlmError('no_key', 'GROQ_API_KEY is not configured');
   }
@@ -98,7 +94,7 @@ async function requestCompletion(
 
   let response: Response;
   try {
-    response = await fetch(GROQ_URL, {
+    response = await fetch(config.llm.url, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -107,8 +103,7 @@ async function requestCompletion(
       body: JSON.stringify({
         model,
         temperature: 0,
-        // gpt-oss models reason before answering; low effort keeps token use within free-tier limits.
-        ...(model.startsWith('openai/gpt-oss') && { reasoning_effort: 'low' }),
+        ...(model.startsWith('openai/gpt-oss') && { reasoning_effort: config.llm.reasoningEffort }),
         // JSON mode: the model must return a single valid JSON object.
         ...(jsonMode && { response_format: { type: 'json_object' } }),
         messages: [

@@ -1,5 +1,6 @@
-import { analyzeEmail, toPipelineError, type PipelineResult } from '../agents/orchestrator.js';
-import { getModelName } from '../agents/groqClient.js';
+import { analyzeEmail, toPipelineError, type PipelineResult } from './orchestrator.js';
+import { getModelName } from '../llm/groqClient.js';
+import { PROMPT_VERSION } from '../prompts/index.js';
 import type { RawEmail } from '../../../shared/types.js';
 import type { EmailRepository } from '../storage/emailRepository.js';
 
@@ -33,7 +34,7 @@ export function createAnalysisQueue(
         // analyzeEmail never throws, but a custom analyzer might; never let it stop the queue.
         result = { status: 'failed', stage: 'extraction', error: toPipelineError(err), extraction: null, durationMs: 0 };
       }
-      repo.saveResult(id, result, getModelName());
+      repo.saveResult(id, result, getModelName(), PROMPT_VERSION);
 
       const outcome =
         result.status === 'done' ? `done (${result.analysis.risk.level})` : `failed at ${result.stage}: ${result.error.kind}`;

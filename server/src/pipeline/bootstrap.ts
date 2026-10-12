@@ -1,4 +1,4 @@
-import { getModelName } from '../agents/groqClient.js';
+import { getModelName } from '../llm/groqClient.js';
 import { loadSeedEmails } from '../ingestion/seed.js';
 import type { EmailRepository } from '../storage/emailRepository.js';
 import type { AnalysisQueue } from './queue.js';
@@ -21,7 +21,7 @@ export function bootstrap(repo: EmailRepository, queue: AnalysisQueue): void {
 
     const cached = snapshot?.results[email.id];
     if (cached) {
-      repo.saveResult(email.id, cached, snapshot.model);
+      repo.saveResult(email.id, cached, snapshot.model, snapshot.promptVersion ?? null);
       fromSnapshot++;
     } else {
       queued++;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { RawEmail } from '../../shared/types.js';
-import type { PipelineResult } from '../src/agents/orchestrator.js';
+import type { PipelineResult } from '../src/pipeline/orchestrator.js';
 import { openDb } from '../src/storage/db.js';
 import { createEmailRepository, normalizeEntityKey } from '../src/storage/emailRepository.js';
 
@@ -70,5 +70,24 @@ describe('emailRepository', () => {
     const repo = createEmailRepository(openDb(':memory:'));
     expect(repo.insertEmail(email('E001'), 'seed')).toBe(true);
     expect(repo.insertEmail(email('E001'), 'seed')).toBe(false);
+  });
+});
+
+describe('database migrations', () => {
+  it('adds prompt_version to a database created by the previous schema, and stores it', async () => {
+    const { default: Database } = await import('better-sqlite3');
+    const { mkdtempSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const path = join(mkdtempSync(join(tmpdir(), 'mri-')), 'old.db');
+    const old = new Database(path);
+    old.exec(`CREATE TABLE analyses (email_id TEXT PRIMARY KEY, extraction TEXT, risk_level TEXT, risk_rationale TEXT,
+      risk_tags TEXT NOT NULL DEFAULT '[]', model TEXT, duration_ms INTEGER, analyzed_at TEXT NOT NULL)`);
+    old.close();
+
+    const repo = createEmailRepository(openDb(path));
+    repo.insertEmail(email('E004'), 'seed');
+    repo.saveResult('E004', done('Northgate Suppliers', 'account ending 9902'), 'test-model', 'extraction-v2+risk-v5');
+    expect(repo.getEmail('E004')!.analysis).toMatchObject({ model: 'test-model', promptVersion: 'extraction-v2+risk-v5' });
   });
 });

@@ -4,11 +4,12 @@ import { openDb } from '../src/storage/db.js';
 import { createEmailRepository } from '../src/storage/emailRepository.js';
 import { loadSeedEmails } from '../src/ingestion/seed.js';
 import { buildSnapshot, writeSnapshot, SNAPSHOT_PATH } from '../src/pipeline/snapshot.js';
-import { getModelName } from '../src/agents/groqClient.js';
+import { getModelName } from '../src/llm/groqClient.js';
+import { PROMPT_VERSION } from '../src/prompts/index.js';
 
 const repo = createEmailRepository(openDb(process.env.DB_PATH || undefined));
 const ids = loadSeedEmails().map((e) => e.id);
-const snapshot = buildSnapshot(repo, ids, getModelName());
+const snapshot = buildSnapshot(repo, ids, getModelName(), PROMPT_VERSION);
 
 const count = Object.keys(snapshot.results).length;
 const missing = ids.filter((id) => !snapshot.results[id]);

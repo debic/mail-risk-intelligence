@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import type { PipelineResult } from '../agents/orchestrator.js';
+import type { PipelineResult } from './orchestrator.js';
 import type { EmailRepository } from '../storage/emailRepository.js';
 
 // Pre-computed analysis of the seed emails, committed to the repo. Lets the app show
@@ -12,6 +12,8 @@ type DoneResult = Extract<PipelineResult, { status: 'done' }>;
 
 export interface Snapshot {
   model: string;
+  /** Prompt versions the snapshot was generated with (absent in older snapshots). */
+  promptVersion?: string;
   generatedAt: string;
   results: Record<string, DoneResult>;
 }
@@ -27,7 +29,7 @@ export function loadSnapshot(path = SNAPSHOT_PATH): Snapshot | null {
 }
 
 /** Rebuild pipeline results from stored analyses (only emails that finished successfully). */
-export function buildSnapshot(repo: EmailRepository, ids: string[], model: string): Snapshot {
+export function buildSnapshot(repo: EmailRepository, ids: string[], model: string, promptVersion: string): Snapshot {
   const results: Record<string, DoneResult> = {};
   for (const id of ids) {
     const email = repo.getEmail(id);
@@ -48,7 +50,7 @@ export function buildSnapshot(repo: EmailRepository, ids: string[], model: strin
       },
     };
   }
-  return { model, generatedAt: new Date().toISOString(), results };
+  return { model, promptVersion, generatedAt: new Date().toISOString(), results };
 }
 
 export function writeSnapshot(snapshot: Snapshot, path = SNAPSHOT_PATH): void {

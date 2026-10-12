@@ -95,7 +95,12 @@ const detail: Email = {
       target: { id: 3, type: 'amount', name: '$184,500' },
     },
   ],
-  analysis: { model: 'openai/gpt-oss-120b', durationMs: 4100, analyzedAt: '2026-06-02T08:15:00Z' },
+  analysis: {
+    model: 'openai/gpt-oss-120b',
+    promptVersion: 'extraction-v2+risk-v5',
+    durationMs: 4100,
+    analyzedAt: '2026-06-02T08:15:00Z',
+  },
 }
 
 const handlers = { onBack: vi.fn(), onRetry: vi.fn(), onReload: vi.fn() }

@@ -12,7 +12,7 @@ import type {
   RawEmail,
   RiskLevel,
 } from '../../../shared/types.js';
-import type { PipelineResult } from '../agents/orchestrator.js';
+import type { PipelineResult } from '../pipeline/orchestrator.js';
 import type { Db } from './db.js';
 
 // All SQL lives here; the rest of the server works with plain objects.
@@ -49,6 +49,7 @@ interface AnalysisRow {
   risk_rationale: string | null;
   risk_tags: string;
   model: string | null;
+  prompt_version: string | null;
   duration_ms: number | null;
   analyzed_at: string;
 }
@@ -169,7 +170,12 @@ export function createEmailRepository(db: Db) {
         entities,
         relationships,
         analysis: analysis
-          ? { model: analysis.model, durationMs: analysis.duration_ms, analyzedAt: analysis.analyzed_at }
+          ? {
+              model: analysis.model,
+              promptVersion: analysis.prompt_version,
+              durationMs: analysis.duration_ms,
+              analyzedAt: analysis.analyzed_at,
+            }
           : null,
       };
     },
@@ -249,7 +255,7 @@ export function createEmailRepository(db: Db) {
     },
 
     /** Store a pipeline result (done or failed), replacing any previous analysis of this email. */
-    saveResult(id: string, result: PipelineResult, model: string): void {
+    saveResult(id: string, result: PipelineResult, model: string, promptVersion: string | null = null): void {
       const save = db.transaction(() => {
         db.prepare('DELETE FROM relationships WHERE email_id = ?').run(id);
         db.prepare('DELETE FROM email_entities WHERE email_id = ?').run(id);
@@ -258,8 +264,9 @@ export function createEmailRepository(db: Db) {
         const risk = result.status === 'done' ? result.analysis.risk : null;
         if (result.extraction) {
           db.prepare(
-            `INSERT INTO analyses (email_id, extraction, risk_level, risk_rationale, risk_tags, model, duration_ms, analyzed_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO analyses
+               (email_id, extraction, risk_level, risk_rationale, risk_tags, model, prompt_version, duration_ms, analyzed_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           ).run(
             id,
             JSON.stringify(result.extraction),
@@ -267,6 +274,7 @@ export function createEmailRepository(db: Db) {
             risk?.rationale ?? null,
             JSON.stringify(risk?.tags ?? []),
             model,
+            promptVersion,
             result.durationMs,
             now(),
           );

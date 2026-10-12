@@ -88,7 +88,13 @@ export interface EmailDetail extends EmailListItem {
   risk: { level: RiskLevel; rationale: string; tags: string[] } | null;
   entities: EmailEntity[];
   relationships: EmailRelationship[];
-  analysis: { model: string | null; durationMs: number | null; analyzedAt: string } | null;
+  analysis: {
+    model: string | null;
+    /** Prompt versions that produced this analysis, e.g. "extraction-v2+risk-v5". */
+    promptVersion: string | null;
+    durationMs: number | null;
+    analyzedAt: string;
+  } | null;
 }
 
 // ---------- Knowledge graph (all emails) ----------

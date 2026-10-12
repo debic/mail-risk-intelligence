@@ -1,10 +1,11 @@
 import type { RawEmail } from '../../../shared/types.js';
-import { runExtractionAgent } from './extractionAgent.js';
-import { LlmError } from './groqClient.js';
-import { InvalidOutputError } from './parseModelJson.js';
-import { runRiskAgent } from './riskAgent.js';
+import { config } from '../config.js';
+import { runExtractionAgent } from '../agents/extractionAgent.js';
+import { LlmError } from '../llm/groqClient.js';
+import { InvalidOutputError } from '../llm/parseModelJson.js';
+import { runRiskAgent } from '../agents/riskAgent.js';
 import { detectSignals, isAbove, signalFloor, type SecuritySignals } from '../security/signals.js';
-import type { Extraction, RiskAnalysis } from './schemas.js';
+import type { Extraction, RiskAnalysis } from '../agents/schemas.js';
 
 // Runs Agent A then Agent B. Agents throw on failure; the orchestrator catches
 // everything and returns a result object, so one bad email can never crash the server.
@@ -25,15 +26,17 @@ export interface PipelineDeps {
   extract: (email: RawEmail) => Promise<Extraction>;
   assessRisk: (extraction: Extraction, signals: SecuritySignals) => Promise<RiskAnalysis>;
   retryDelayMs: number;
+  maxRetries: number;
 }
 
 const defaultDeps: PipelineDeps = {
   extract: runExtractionAgent,
   assessRisk: runRiskAgent,
-  retryDelayMs: 1500,
+  retryDelayMs: config.retry.delayMs,
+  maxRetries: config.retry.maxRetries,
 };
 
-/** Transient failures are worth one retry; a missing or rejected key will fail again. */
+/** Transient failures are worth retrying; a missing or rejected key will fail again. */
 export function isRetryable(err: unknown): boolean {
   if (err instanceof InvalidOutputError) return true;
   if (err instanceof LlmError) {
@@ -50,24 +53,23 @@ export function toPipelineError(err: unknown): PipelineError {
   return { kind: 'unknown', message: err instanceof Error ? err.message : String(err) };
 }
 
-// Never wait longer than this for a rate limit to reset before the single retry.
-const MAX_RETRY_WAIT_MS = 60_000;
-
 /** Wait what Groq asked for on rate limits (capped), otherwise the default short delay. */
 export function retryWaitMs(err: unknown, defaultDelayMs: number): number {
   if (err instanceof LlmError && err.retryAfterMs !== undefined) {
-    return Math.min(err.retryAfterMs + 250, MAX_RETRY_WAIT_MS);
+    return Math.min(err.retryAfterMs + 250, config.retry.maxWaitMs);
   }
   return defaultDelayMs;
 }
 
-async function withOneRetry<T>(task: () => Promise<T>, retryDelayMs: number): Promise<T> {
-  try {
-    return await task();
-  } catch (err) {
-    if (!isRetryable(err)) throw err;
-    await new Promise((resolve) => setTimeout(resolve, retryWaitMs(err, retryDelayMs)));
-    return task();
+/** Run a task; on a transient error, retry up to `maxRetries` times, waiting between attempts. */
+async function withRetries<T>(task: () => Promise<T>, maxRetries: number, retryDelayMs: number): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await task();
+    } catch (err) {
+      if (attempt >= maxRetries || !isRetryable(err)) throw err;
+      await new Promise((resolve) => setTimeout(resolve, retryWaitMs(err, retryDelayMs)));
+    }
   }
 }
 
@@ -97,14 +99,14 @@ export async function analyzeEmail(email: RawEmail, deps: PipelineDeps = default
 
   let extraction: Extraction;
   try {
-    extraction = await withOneRetry(() => deps.extract(email), deps.retryDelayMs);
+    extraction = await withRetries(() => deps.extract(email), deps.maxRetries, deps.retryDelayMs);
   } catch (err) {
     return { status: 'failed', stage: 'extraction', error: toPipelineError(err), extraction: null, durationMs: elapsed() };
   }
 
   try {
     const signals = detectSignals(email);
-    const analysis = await withOneRetry(() => deps.assessRisk(extraction, signals), deps.retryDelayMs);
+    const analysis = await withRetries(() => deps.assessRisk(extraction, signals), deps.maxRetries, deps.retryDelayMs);
     return { status: 'done', extraction, analysis: applySignalFloor(analysis, signals), durationMs: elapsed() };
   } catch (err) {
     return { status: 'failed', stage: 'risk', error: toPipelineError(err), extraction, durationMs: elapsed() };

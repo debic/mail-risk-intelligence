@@ -2,12 +2,14 @@ import { randomUUID } from 'node:crypto';
 import { Router, type Request, type Response } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
-import { ingestFile, ingestText, IngestionError, MAX_UPLOAD_BYTES } from '../ingestion/index.js';
+import { MAX_UPLOAD_LABEL } from '../../../shared/limits.js';
+import { config } from '../config.js';
+import { ingestFile, ingestText, IngestionError } from '../ingestion/index.js';
 import type { RawEmail } from '../../../shared/types.js';
 import type { AnalysisQueue } from '../pipeline/queue.js';
 import type { EmailRepository } from '../storage/emailRepository.js';
 
-const MAX_BODY_CHARS = 50_000;
+const { maxBodyChars: MAX_BODY_CHARS, maxBytes: MAX_UPLOAD_BYTES } = config.uploads;
 
 // JSON input for a new email. Only the body is required; ingestion (Stage 5) fills headers from raw text/files.
 const NewEmailSchema = z.object({
@@ -30,7 +32,7 @@ function receiveUpload(req: Request, res: Response): Promise<boolean> {
     upload.single('file')(req, res, (err: unknown) => {
       if (!err) return resolve(true);
       if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
-        res.status(400).json({ error: `File is larger than ${MAX_UPLOAD_BYTES / 1024 / 1024} MB.`, code: 'too_large' });
+        res.status(400).json({ error: `File is larger than ${MAX_UPLOAD_LABEL}.`, code: 'too_large' });
       } else {
         console.warn('[ingest] upload_failed:', (err as Error).message);
         res.status(400).json({ error: 'The upload could not be processed. Please try again.', code: 'upload_failed' });

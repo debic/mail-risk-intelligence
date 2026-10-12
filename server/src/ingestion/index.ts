@@ -1,3 +1,5 @@
+import { MAX_UPLOAD_LABEL } from '../../../shared/limits.js';
+import { config } from '../config.js';
 import { parseEml } from './parseEml.js';
 import { parsePdf } from './parsePdf.js';
 import { parseRawText } from './parseRawText.js';
@@ -6,8 +8,7 @@ import { IngestionError, type IngestedEmail } from './types.js';
 // Every input (pasted text, .txt, .eml, .pdf) becomes the same IngestedEmail shape,
 // so new emails go through exactly the same pipeline as the seed data.
 
-export const SUPPORTED_EXTENSIONS = ['.txt', '.eml', '.pdf'];
-export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+const { supportedExtensions: SUPPORTED_EXTENSIONS, maxBytes: MAX_UPLOAD_BYTES } = config.uploads;
 
 const EMAIL_HEADER = /^(from|to|subject|date|received|mime-version|message-id|return-path|reply-to)\s*:/im;
 
@@ -41,7 +42,7 @@ export async function ingestFile(filename: string, data: Buffer): Promise<Ingest
     throw new IngestionError('unsupported_type', `Only ${SUPPORTED_EXTENSIONS.join(', ')} files are supported.`);
   }
   if (data.length === 0) throw new IngestionError('empty', 'The file is empty.');
-  if (data.length > MAX_UPLOAD_BYTES) throw new IngestionError('too_large', 'File is larger than 5 MB.');
+  if (data.length > MAX_UPLOAD_BYTES) throw new IngestionError('too_large', `File is larger than ${MAX_UPLOAD_LABEL}.`);
 
   if (extension === '.pdf') {
     if (!looksLikePdf(data)) throw new IngestionError('not_pdf', 'This file is named .pdf but is not a PDF.');

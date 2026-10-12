@@ -1,6 +1,6 @@
 // Run the full pipeline (Agent A then Agent B) on one seed email: `npm run try:agents -w server -- E004`
 import { loadSeedEmails } from '../src/ingestion/seed.js';
-import { analyzeEmail } from '../src/agents/orchestrator.js';
+import { analyzeEmail } from '../src/pipeline/orchestrator.js';
 
 const id = process.argv[2] ?? 'E001';
 const email = loadSeedEmails().find((e) => e.id === id);

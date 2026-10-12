@@ -1,12 +1,13 @@
 import { createApp } from './app.js';
+import { config } from './config.js';
 import { bootstrap } from './pipeline/bootstrap.js';
 import { createAnalysisQueue } from './pipeline/queue.js';
 import { openDb } from './storage/db.js';
 import { createEmailRepository } from './storage/emailRepository.js';
 
-const PORT = Number(process.env.PORT) || 3001;
+const PORT = config.port;
 
-const repo = createEmailRepository(openDb(process.env.DB_PATH || undefined));
+const repo = createEmailRepository(openDb(config.dbPath));
 const queue = createAnalysisQueue(repo);
 
 createApp(repo, queue).listen(PORT, () => {

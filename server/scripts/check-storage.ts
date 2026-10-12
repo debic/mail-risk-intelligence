@@ -3,7 +3,7 @@
 import { openDb } from '../src/storage/db.js';
 import { createEmailRepository } from '../src/storage/emailRepository.js';
 import { loadSeedEmails } from '../src/ingestion/seed.js';
-import type { PipelineResult } from '../src/agents/orchestrator.js';
+import type { PipelineResult } from '../src/pipeline/orchestrator.js';
 import type { Extraction } from '../src/agents/schemas.js';
 
 const repo = createEmailRepository(openDb(':memory:'));

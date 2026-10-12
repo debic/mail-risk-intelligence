@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { EmailDetail } from '../../../shared/types'
 import { api } from '../api/client'
-
-const POLL_MS = 2000
+import { POLL_MS } from '../config'
 
 /** One email's full analysis. Polls while it is queued or being analyzed. */
 export function useEmailDetail(id: string | null) {

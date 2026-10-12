@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { RawEmail } from '../../shared/types.js';
-import { LlmError } from '../src/agents/groqClient.js';
-import { analyzeEmail, type PipelineDeps } from '../src/agents/orchestrator.js';
-import { InvalidOutputError } from '../src/agents/parseModelJson.js';
+import { LlmError } from '../src/llm/groqClient.js';
+import { analyzeEmail, type PipelineDeps } from '../src/pipeline/orchestrator.js';
+import { InvalidOutputError } from '../src/llm/parseModelJson.js';
 import type { Extraction, RiskAnalysis } from '../src/agents/schemas.js';
 
 // Fake agents: no LLM calls, deterministic failures.
@@ -39,6 +39,7 @@ function deps(overrides: Partial<PipelineDeps>): PipelineDeps {
     extract: vi.fn().mockResolvedValue(extraction),
     assessRisk: vi.fn().mockResolvedValue(analysis),
     retryDelayMs: 0,
+    maxRetries: 1,
     ...overrides,
   };
 }
@@ -75,6 +76,12 @@ describe('analyzeEmail', () => {
     const result = await analyzeEmail(email, deps({ extract }));
     expect(extract).toHaveBeenCalledTimes(2);
     expect(result).toMatchObject({ status: 'failed', stage: 'extraction', error: { kind: 'network' } });
+  });
+
+  it('honors a configured number of retries', async () => {
+    const extract = vi.fn().mockRejectedValue(new LlmError('timeout', 'slow'));
+    await analyzeEmail(email, deps({ extract, maxRetries: 3 }));
+    expect(extract).toHaveBeenCalledTimes(4);
   });
 
   it('does not retry when the API key is missing', async () => {

@@ -31,19 +31,23 @@ npm run dev            # http://localhost:5173
 
 **Without a key the app still works:** the 10 seed emails load from a committed snapshot of their analysis, and new emails show a clear "AI service not configured" state with Retry. Try **Add email** with the files in [`samples/`](samples/).
 
-`npm test` runs 140 tests (no API calls). `npm run eval -w server` checks the 10 seeds against my expected risk levels (10/10). With the app running, `npm run check:responsive` checks every main view at 5 widths in your installed Chrome.
+`npm test` runs 142 tests (no API calls). `npm run eval -w server` checks the 10 seeds against my expected risk levels (10/10). With the app running, `npm run check:responsive` checks every main view at 5 widths in your installed Chrome.
 
 ## Architecture
 
 ```
-client/   React + TS (Vite). Components, CSS Modules, design tokens, hooks, API client
-server/
+client/   React + TS (Vite). Components, CSS Modules, design tokens, hooks, API client, config.ts
+server/src/
+  config.ts   every server setting in one place (env overrides for model, timeout, retries, port, DB)
   ingestion/  pasted text, .txt, .eml, .pdf -> one common email shape
-  agents/     Groq client, Agent A (extraction), Agent B (risk + entities), zod schemas, orchestrator
-  pipeline/   background queue, startup seeding, snapshot
+  llm/        Groq client (timeout, rate-limit throttle) and JSON output validation
+  prompts/    versioned system prompts; the version is stored with every analysis
+  agents/     Agent A (extraction), Agent B (risk + entities) and their zod schemas
+  security/   deterministic checks outside the model (prompt injection, executables, unknown links)
+  pipeline/   orchestrator (A then B, retries), background queue, startup seeding, snapshot
   storage/    SQLite; entities are shared across emails so the graph can link them
   routes/     REST API (/api/emails, /api/emails/ingest, /api/emails/:id/retry, /api/graph)
-shared/   types shared by client and server
+shared/   API types and upload limits shared by client and server
 ```
 
 Adding an email returns immediately as `queued`; a background queue runs Agent A then Agent B, and the UI polls only while something is pending.
@@ -63,10 +67,10 @@ Adding an email returns immediately as `queued`; a background queue runs Agent A
 | Suite | Tests | What it covers |
 | --- | --- | --- |
 | Server: model output parsing | 15 | valid output, garbage (prose, truncated JSON, empty, wrong shape), normalization |
-| Server: orchestrator | 8 | retry once on transient errors, no retry without a key, partial results, never throws |
+| Server: orchestrator | 9 | configurable retries on transient errors, no retry without a key, partial results, never throws |
 | Server: ingestion | 21 | pasted text, the `.txt` / `.eml` / `.pdf` samples, renamed and malformed files (content is checked, not just the extension), error codes, display names with commas |
 | Server: security | 20 | prompt injection detection, executable attachments never opened, unknown links (including `hxxp://`), a risk floor the model cannot lower, delimiter escaping |
-| Server: storage | 4 | entity de-duplication that links emails in the graph |
+| Server: storage | 5 | entity de-duplication that links emails in the graph, schema migration |
 | Server: API (HTTP) | 9 | bad uploads return 400 and store nothing, library errors never reach the client, oversized files, valid upload is queued, 404 |
 | UI: components | 21 | risk badge labels, failure and retry states, `hxxp://` never clickable, file validation, add email submit and error states |
 | UI: accessibility (axe-core) | 5 | WCAG 2 A/AA rules on the inbox, loading/error states, email detail with entities, failed state, add email dialog |

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { InvalidOutputError, parseModelJson } from '../src/agents/parseModelJson.js';
+import { InvalidOutputError, parseModelJson } from '../src/llm/parseModelJson.js';
 import { ExtractionSchema, RiskAnalysisSchema } from '../src/agents/schemas.js';
 
 const validExtraction = {

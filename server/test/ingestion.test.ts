@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { ingestFile, ingestText, IngestionError, MAX_UPLOAD_BYTES } from '../src/ingestion/index.js';
+import { MAX_UPLOAD_BYTES } from '../../shared/limits.js';
+import { ingestFile, ingestText, IngestionError } from '../src/ingestion/index.js';
 import { parseAddressList } from '../src/ingestion/parseRawText.js';
 
 const sample = (name: string) => readFileSync(fileURLToPath(new URL(`../../samples/${name}`, import.meta.url)));
