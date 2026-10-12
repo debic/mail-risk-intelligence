@@ -165,6 +165,21 @@ export function createEmailRepository(db: Db) {
       };
     },
 
+    /** The email as originally ingested, which is what the pipeline analyzes. */
+    getRawEmail(id: string): RawEmail | null {
+      const row = db.prepare('SELECT * FROM emails WHERE id = ?').get(id) as EmailRow | undefined;
+      if (!row) return null;
+      return {
+        id: row.id,
+        from: row.sender,
+        to: JSON.parse(row.recipients),
+        date: row.date,
+        subject: row.subject,
+        body: row.body,
+        attachments: JSON.parse(row.attachments),
+      };
+    },
+
     setStatus(id: string, status: EmailStatus): void {
       db.prepare('UPDATE emails SET status = ?, updated_at = ? WHERE id = ?').run(status, now(), id);
     },

@@ -140,7 +140,7 @@ Update the checkboxes as steps are completed.
 
 ### Stage 3: Storage and API (30 min)
 - [x] 3.1 SQLite schema for emails, analysis results, entities and relationships
-- [ ] 3.2 On startup, process seed emails only if not already stored
+- [x] 3.2 On startup, process seed emails only if not already stored
 - [ ] 3.3 Endpoints: list emails, get one, add new, retry a failed one
 
 ### Stage 4: Main UI (1 h 30 min) - main focus

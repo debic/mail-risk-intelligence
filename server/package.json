@@ -3,11 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --env-file-if-exists=../.env src/index.ts",
+    "dev": "tsx watch --include ../shared --env-file-if-exists=../.env src/index.ts",
     "start": "tsx --env-file-if-exists=../.env src/index.ts",
     "ping:groq": "tsx --env-file-if-exists=../.env scripts/ping-groq.ts",
     "try:agents": "tsx --env-file-if-exists=../.env scripts/try-agents.ts",
-    "eval": "tsx --env-file-if-exists=../.env scripts/eval-seed.ts"
+    "eval": "tsx --env-file-if-exists=../.env scripts/eval-seed.ts",
+    "snapshot": "tsx --env-file-if-exists=../.env scripts/export-snapshot.ts"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

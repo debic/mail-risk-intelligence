@@ -5,7 +5,7 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const DEFAULT_MODEL = 'openai/gpt-oss-120b';
 const DEFAULT_TIMEOUT_MS = 20_000;
 
-export type LlmErrorKind = 'no_key' | 'timeout' | 'http' | 'network' | 'empty';
+export type LlmErrorKind = 'no_key' | 'timeout' | 'http' | 'network' | 'empty' | 'bad_json';
 
 /** Error with a machine-readable kind, so the orchestrator and UI can explain what went wrong. */
 export class LlmError extends Error {
@@ -113,6 +113,10 @@ export async function callGroq({ system, user, timeoutMs = DEFAULT_TIMEOUT_MS }:
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
+    // JSON mode rejects malformed model output with a 400; it is garbage output, not a bad request.
+    if (response.status === 400 && detail.includes('json_validate_failed')) {
+      throw new LlmError('bad_json', 'Model produced malformed JSON (rejected by Groq JSON mode)', 400);
+    }
     throw new LlmError(
       'http',
       `Groq returned HTTP ${response.status}: ${detail.slice(0, 200)}`,
