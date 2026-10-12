@@ -11,4 +11,7 @@ app.get('/api/health', (_req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
+  if (!process.env.GROQ_API_KEY) {
+    console.warn('GROQ_API_KEY is not set. LLM analysis will be unavailable (see .env.example).');
+  }
 });
