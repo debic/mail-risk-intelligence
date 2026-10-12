@@ -38,3 +38,58 @@ export const ExtractionSchema = z.object({
 });
 
 export type Extraction = z.infer<typeof ExtractionSchema>;
+
+// ---------- Agent B: risk + entities + relationships ----------
+
+export const RISK_LEVELS = ['none', 'low', 'medium', 'high'] as const;
+export const ENTITY_TYPES = ['person', 'organization', 'amount', 'account', 'location', 'other'] as const;
+
+/** "Financial Anomaly" / "financial_anomaly" -> "financial-anomaly" */
+export function toKebabCase(value: string): string {
+  return value.trim().toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
+}
+
+/** "Requests Transfer To" / "requests-transfer-to" -> "requests_transfer_to" */
+export function toSnakeCase(value: string): string {
+  return value.trim().toLowerCase().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '').replace(/_+/g, '_');
+}
+
+const EntitySchema = z.object({
+  id: z.string(),
+  // Unknown types become "other" instead of failing the whole analysis.
+  type: z.enum(ENTITY_TYPES).catch('other'),
+  name: z.string().min(1),
+  details: z.string().nullable().default(null),
+});
+
+const RelationshipSchema = z.object({
+  source: z.string(),
+  target: z.string(),
+  type: z.string().min(1).transform(toSnakeCase),
+  evidence: z.string().nullable().default(null),
+});
+
+export const RiskAnalysisSchema = z
+  .object({
+    risk: z.object({
+      level: z.enum(RISK_LEVELS),
+      rationale: z.string().min(1),
+      tags: z
+        .array(z.string())
+        .default([])
+        .transform((tags) => [...new Set(tags.map(toKebabCase).filter(Boolean))]),
+    }),
+    entities: z.array(EntitySchema).default([]),
+    relationships: z.array(RelationshipSchema).default([]),
+  })
+  // Drop relationships that point to entity ids the model never declared,
+  // instead of rejecting an otherwise useful analysis.
+  .transform((analysis) => {
+    const ids = new Set(analysis.entities.map((entity) => entity.id));
+    return {
+      ...analysis,
+      relationships: analysis.relationships.filter((rel) => ids.has(rel.source) && ids.has(rel.target)),
+    };
+  });
+
+export type RiskAnalysis = z.infer<typeof RiskAnalysisSchema>;

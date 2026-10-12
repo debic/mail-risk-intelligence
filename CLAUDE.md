@@ -134,7 +134,7 @@ Update the checkboxes as steps are completed.
 ### Stage 2: Agents (1 h 15 min)
 - [x] 2.1 Groq client wrapper with timeout
 - [x] 2.2 Agent A prompt + zod schema for its output
-- [ ] 2.3 Agent B prompt + zod schema for its output
+- [x] 2.3 Agent B prompt + zod schema for its output
 - [ ] 2.4 Orchestrator: A then B, retry once on failure, mark `failed` with error message if it still fails
 - [ ] 2.5 Run on the 10 seed emails and compare with the expected results table
 
