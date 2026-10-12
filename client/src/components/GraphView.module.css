@@ -171,6 +171,7 @@
 
 .panel {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: var(--space-5);
   padding: var(--space-5);
@@ -181,7 +182,7 @@
 
 .panelHeader {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
   gap: var(--space-3);
 }
@@ -205,6 +206,7 @@
 
 .panelSection {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
 }
 
@@ -279,11 +281,71 @@
 
 .panelEmpty {
   display: grid;
-  gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
 }
 
 .panelEmptyTitle {
+  font-size: var(--text-md);
   font-weight: var(--weight-semibold);
+}
+
+.entityList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+
+.entityButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  text-align: left;
+}
+
+.entityButton:hover {
+  background: var(--color-surface-hover);
+}
+
+.entityButtonName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: var(--weight-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entityButtonMeta {
+  flex-shrink: 0;
+  color: var(--color-text-subtle);
+  font-size: var(--text-xs);
+}
+
+.backLink {
+  justify-self: start;
+  display: inline-flex;
+  gap: var(--space-2);
+  margin: calc(var(--space-2) * -1) 0 0 calc(var(--space-2) * -1);
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-accent);
+  font-weight: var(--weight-semibold);
+}
+
+.backLink:hover {
+  background: var(--color-accent-soft);
+}
+
+.entityName:focus {
+  outline: none;
 }
 
 @media (max-width: 899px) {

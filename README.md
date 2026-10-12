@@ -3,7 +3,7 @@
 Emails land in a mailbox, two chained AI agents analyze them, and the UI shows who is involved, what they want, and whether it looks risky (fraud, phishing, insider threat, market abuse, harassment).
 
 > **Track: UI-focused.** Extra effort went into design, responsiveness, accessibility, UI states and the knowledge graph.
-> **Time spent:** about 4 hours (30 min planning, 3h30 building). How I used AI tools: [PROCESS.md](PROCESS.md).
+> **Time spent:** about 4h10 (30 min planning, 3h40 building). How I used AI tools: [PROCESS.md](PROCESS.md).
 
 ![Inbox and email detail](docs/screenshots/inbox-detail.png)
 
@@ -45,7 +45,7 @@ Adding an email returns immediately as `queued`; a background queue runs Agent A
 - **LLM: Groq free tier, `openai/gpt-oss-120b`.** Fast, no local install. The prompt knows the real domain (`arcline.com`) and has explicit severity rules, tuned over 4 eval runs to reach 10/10.
 - **Failure handling.** Every model response is validated with zod; garbage is rejected. The orchestrator never throws: it retries transient errors once (timeout, network, 429/5xx, bad JSON), never retries a missing key, and stores `failed` with a reason. If Agent B fails, Agent A's extraction is still shown. A throttle reads Groq's token budget headers to avoid rate limits.
 - **Styling: CSS Modules + CSS custom properties as design tokens.** No extra dependencies, scoped styles, and one file ([tokens.css](client/src/styles/tokens.css)) holds the whole design system. Color is reserved for risk; the palette is based on the hiring company's brand since Arcline is fictional.
-- **Accessibility.** Risk is never shown by color alone, AA contrast everywhere, visible focus, keyboard navigation, skip link, native `<dialog>`, a searchable alternative to the canvas graph. axe-core audit: 0 violations.
+- **Accessibility.** Risk is never shown by color alone, AA contrast everywhere, visible focus, keyboard navigation, skip link, native `<dialog>`, a keyboard-browsable entity list and search as an equivalent to the canvas graph. axe-core audit: 0 violations.
 - **Responsive.** Two panels from 900px, one panel with a Back button below that.
 - **Caching.** LLM results are persisted, so restarts never re-analyze; the seed snapshot works as a precomputed cache.
 

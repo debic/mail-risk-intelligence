@@ -28,6 +28,17 @@ const TYPE_GLYPH: Record<EntityType, string> = {
 }
 
 const RISK_ORDER: RiskLevel[] = ['high', 'medium', 'low', 'none']
+const RISK_RANK: Record<RiskLevel, number> = { high: 3, medium: 2, low: 1, none: 0 }
+
+// Keyboard-browsable entity list, grouped like the email detail view.
+const TYPE_GROUPS: { type: EntityType; label: string }[] = [
+  { type: 'person', label: 'People' },
+  { type: 'organization', label: 'Organizations' },
+  { type: 'account', label: 'Accounts' },
+  { type: 'amount', label: 'Amounts' },
+  { type: 'location', label: 'Locations' },
+  { type: 'other', label: 'Other' },
+]
 const RISK_LABEL: Record<RiskLevel, string> = { high: 'High', medium: 'Medium', low: 'Low', none: 'None' }
 
 const humanize = (relation: string) => relation.replace(/_/g, ' ')
@@ -66,6 +77,11 @@ export function GraphView({ onOpenEmail }: GraphViewProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [query, setQuery] = useState('')
   const palette = useMemo(readPalette, [])
+  const panelRef = useRef<HTMLElement>(null)
+  const entityHeadingRef = useRef<HTMLHeadingElement>(null)
+  // Selections from the list, search or connections move focus into the panel; canvas clicks don't.
+  const moveFocusRef = useRef(false)
+  const returnToListRef = useRef<number | null>(null)
 
   // The library mutates node/link objects (positions), so give it its own copies.
   const data = useMemo(
@@ -121,7 +137,8 @@ export function GraphView({ onOpenEmail }: GraphViewProps) {
   }, [data, size.width])
 
   const focusNode = useCallback(
-    (id: number) => {
+    (id: number, moveFocus = true) => {
+      moveFocusRef.current = moveFocus
       setSelectedId(id)
       const node = nodesById.get(id)
       if (node?.x !== undefined && node.y !== undefined) {
@@ -130,6 +147,40 @@ export function GraphView({ onOpenEmail }: GraphViewProps) {
       }
     },
     [nodesById],
+  )
+
+  // Keyboard and screen reader users land on the selected entity's name, and back on the
+  // list item when they return to "All entities".
+  useEffect(() => {
+    if (selectedId !== null && moveFocusRef.current) {
+      moveFocusRef.current = false
+      entityHeadingRef.current?.focus()
+    } else if (selectedId === null && returnToListRef.current !== null) {
+      const id = returnToListRef.current
+      returnToListRef.current = null
+      panelRef.current?.querySelector<HTMLButtonElement>(`[data-entity-id="${id}"]`)?.focus()
+    }
+  }, [selectedId])
+
+  const showAllEntities = () => {
+    returnToListRef.current = selectedId
+    setSelectedId(null)
+  }
+
+  const entityGroups = useMemo(
+    () =>
+      TYPE_GROUPS.map((group) => ({
+        ...group,
+        items: data.nodes
+          .filter((node) => node.type === group.type)
+          .sort(
+            (a, b) =>
+              (b.maxRisk ? RISK_RANK[b.maxRisk] : -1) - (a.maxRisk ? RISK_RANK[a.maxRisk] : -1) ||
+              b.emailIds.length - a.emailIds.length ||
+              a.name.localeCompare(b.name),
+          ),
+      })).filter((group) => group.items.length > 0),
+    [data],
   )
 
   const drawNode = useCallback(
@@ -290,7 +341,7 @@ export function GraphView({ onOpenEmail }: GraphViewProps) {
             linkDirectionalArrowRelPos={0.92}
             linkLabel={(link) => humanize(link.type)}
             linkVisibility={(link) => selectedId === null || linkIsActive(link)}
-            onNodeClick={(node) => focusNode(node.id as number)}
+            onNodeClick={(node) => focusNode(node.id as number, false)}
             onBackgroundClick={() => setSelectedId(null)}
             cooldownTicks={120}
             onEngineStop={() => {
@@ -317,26 +368,23 @@ export function GraphView({ onOpenEmail }: GraphViewProps) {
         <p className={styles.hint}>Drag to pan · scroll or pinch to zoom · click a node to see its connections</p>
       </div>
 
-      <aside className={styles.panel} aria-label="Selected entity" aria-live="polite">
+      <aside className={styles.panel} aria-label="Entities" ref={panelRef}>
         {selected ? (
           <>
+            <button type="button" className={styles.backLink} onClick={showAllEntities}>
+              <span aria-hidden="true">←</span> All entities
+            </button>
             <div className={styles.panelHeader}>
               <span className={styles.dot} data-risk={selected.maxRisk ?? 'unknown'} aria-hidden="true" />
               <div>
-                <h2 className={styles.entityName}>{selected.name}</h2>
+                <h2 ref={entityHeadingRef} tabIndex={-1} className={styles.entityName}>
+                  {selected.name}
+                </h2>
                 <p className={styles.entityMeta}>
                   {TYPE_LABEL[selected.type]}
                   {selected.maxRisk && ` · highest risk: ${RISK_LABEL[selected.maxRisk].toLowerCase()}`}
                 </p>
               </div>
-              <button
-                type="button"
-                className={styles.iconButton}
-                aria-label="Clear selection"
-                onClick={() => setSelectedId(null)}
-              >
-                ×
-              </button>
             </div>
 
             <section className={styles.panelSection}>
@@ -379,13 +427,39 @@ export function GraphView({ onOpenEmail }: GraphViewProps) {
           </>
         ) : (
           <div className={styles.panelEmpty}>
-            <p className={styles.panelEmptyTitle}>
+            <h2 className={styles.panelEmptyTitle}>
               {data.nodes.length} entities · {data.links.length} relationships
-            </p>
+            </h2>
             <p className={styles.muted}>
-              Select a node, or search above, to see where an entity appears and how it connects to others. Larger
-              nodes appear in more emails.
+              Pick an entity here, in the graph or with the search box to see where it appears and how it connects.
+              Highest risk first.
             </p>
+            {entityGroups.map((group) => (
+              <section key={group.type} className={styles.panelSection}>
+                <h3 className={styles.panelTitle}>
+                  {group.label} ({group.items.length})
+                </h3>
+                <ul className={styles.entityList}>
+                  {group.items.map((node) => (
+                    <li key={node.id}>
+                      <button
+                        type="button"
+                        className={styles.entityButton}
+                        data-entity-id={node.id}
+                        onClick={() => focusNode(node.id as number)}
+                      >
+                        <span className={styles.dot} data-risk={node.maxRisk ?? 'unknown'} aria-hidden="true" />
+                        <span className={styles.entityButtonName}>{node.name}</span>
+                        <span className={styles.entityButtonMeta}>
+                          {node.maxRisk && <span className="visually-hidden">{RISK_LABEL[node.maxRisk]} risk, </span>}
+                          {node.emailIds.length} email{node.emailIds.length === 1 ? '' : 's'}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
           </div>
         )}
       </aside>
