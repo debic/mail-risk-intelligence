@@ -162,9 +162,9 @@ Update the checkboxes as steps are completed.
 - [x] 6.2 One or two UI component tests (e.g. risk badge)
 
 ### Stage 7: Documentation (40 min)
-- [ ] 7.1 `README.md` (UI-track statement at the top)
-- [ ] 7.2 `PROCESS.md` built from `process-notes.md`
-- [ ] 7.3 Final check of `.env.example` and run instructions from a clean clone
+- [x] 7.1 `README.md` (UI-track statement at the top)
+- [x] 7.2 `PROCESS.md` built from `process-notes.md`
+- [x] 7.3 Final check of `.env.example` and run instructions from a clean clone
 
 ### Bonus, only if time allows: Knowledge graph (1 h)
 - [x] B.1 Graph view of all entities and relationships (react-force-graph or React Flow)
