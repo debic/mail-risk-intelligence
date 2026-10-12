@@ -63,6 +63,16 @@ function readPalette() {
   }
 }
 
+/** Cut long names in the middle so the distinguishing end stays visible ("routing 0440…ending 9902"). */
+function shortenMiddle(text: string, max: number): string {
+  if (text.length <= max) return text
+  let tail = text.slice(-Math.ceil((max - 1) * 0.55))
+  // Start the tail at a word boundary when one is close ("unt ending 9902" -> "ending 9902").
+  const space = tail.indexOf(' ')
+  if (space !== -1 && space < 6) tail = tail.slice(space + 1)
+  return `${text.slice(0, max - 1 - tail.length).trimEnd()}…${tail}`
+}
+
 const nodeRadius = (node: GraphNode) => 5 + Math.sqrt(node.emailIds.length) * 3
 
 interface GraphViewProps {
@@ -204,21 +214,60 @@ export function GraphView({ onOpenEmail }: GraphViewProps) {
       ctx.textBaseline = 'middle'
       ctx.fillText(TYPE_GLYPH[node.type], node.x!, node.y! + 0.5)
 
-      // Labels appear when zoomed in, or for the selection and its neighbors.
-      if (scale > 1.6 || (neighbors !== null && !dimmed)) {
-        const fontSize = Math.max(11 / scale, 2.5)
-        ctx.font = `${selected ? 600 : 500} ${fontSize}px Inter Variable, sans-serif`
-        ctx.textBaseline = 'top'
-        const label = node.name.length > 28 ? `${node.name.slice(0, 27)}…` : node.name
-        const width = ctx.measureText(label).width
-        ctx.fillStyle = 'rgba(255,255,255,0.85)'
-        ctx.fillRect(node.x! - width / 2 - 2, node.y! + r + 2, width + 4, fontSize + 2)
-        ctx.fillStyle = palette.text
-        ctx.fillText(label, node.x!, node.y! + r + 3)
-      }
       ctx.globalAlpha = 1
     },
     [neighbors, selectedId, palette],
+  )
+
+  // Labels are drawn after all nodes, most important first, and each one takes the first free
+  // spot around its node (below, above, right, left). A label that would overlap another is
+  // skipped: the entity is still listed in the side panel and shown on hover.
+  const drawLabels = useCallback(
+    (ctx: CanvasRenderingContext2D, scale: number) => {
+      const candidates = data.nodes
+        .filter((node) => (neighbors !== null ? neighbors.has(node.id as number) : scale > 2.2))
+        .sort(
+          (a, b) =>
+            Number(b.id === selectedId) - Number(a.id === selectedId) || b.emailIds.length - a.emailIds.length,
+        )
+      const fontSize = Math.max(11 / scale, 2.5)
+      const pad = 2 / scale
+      // Labeled nodes' own circles count as occupied space, so a label never covers a node.
+      const placed: { x: number; y: number; w: number; h: number }[] = candidates
+        .filter((node) => node.x !== undefined && node.y !== undefined)
+        .map((node) => {
+          const r = nodeRadius(node)
+          return { x: node.x! - r, y: node.y! - r, w: r * 2, h: r * 2 }
+        })
+      const overlaps = (r: (typeof placed)[number]) =>
+        placed.some((p) => r.x < p.x + p.w && r.x + r.w > p.x && r.y < p.y + p.h && r.y + r.h > p.y)
+
+      for (const node of candidates) {
+        if (node.x === undefined || node.y === undefined) continue
+        const selected = node.id === selectedId
+        ctx.font = `${selected ? 600 : 500} ${fontSize}px Inter Variable, sans-serif`
+        const label = shortenMiddle(node.name, 28)
+        const w = ctx.measureText(label).width + pad * 2
+        const h = fontSize + pad * 2
+        const r = nodeRadius(node) + pad
+        const spots = [
+          { x: node.x - w / 2, y: node.y + r },
+          { x: node.x - w / 2, y: node.y - r - h },
+          { x: node.x + r, y: node.y - h / 2 },
+          { x: node.x - r - w, y: node.y - h / 2 },
+        ].map((spot) => ({ ...spot, w, h }))
+        const spot = spots.find((candidate) => !overlaps(candidate))
+        if (!spot) continue
+        placed.push(spot)
+        ctx.fillStyle = 'rgba(255,255,255,0.9)'
+        ctx.fillRect(spot.x, spot.y, spot.w, spot.h)
+        ctx.fillStyle = palette.text
+        ctx.textAlign = 'left'
+        ctx.textBaseline = 'top'
+        ctx.fillText(label, spot.x + pad, spot.y + pad)
+      }
+    },
+    [data, neighbors, selectedId, palette],
   )
 
   const zoomBy = (factor: number) => {
@@ -329,6 +378,7 @@ export function GraphView({ onOpenEmail }: GraphViewProps) {
             nodeId="id"
             nodeLabel={(node) => `${node.name} (${TYPE_LABEL[node.type]})`}
             nodeCanvasObject={drawNode}
+            onRenderFramePost={drawLabels}
             nodePointerAreaPaint={(node, color, ctx) => {
               ctx.fillStyle = color
               ctx.beginPath()

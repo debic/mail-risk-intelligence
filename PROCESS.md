@@ -15,7 +15,7 @@ I built this with **Claude** (chat, for planning) and **Claude Code** (desktop a
 | Bonus | Knowledge graph | Interactive graph, search, entity panel |
 | 6 | Tests | Server tests, UI tests |
 | 7 | Documentation | README, PROCESS, screenshots, clean-clone check |
-| Review | External review fixes | Graph keyboard access, reproducible accessibility tests, upload validation, address parsing, error messages, design token guard, responsive check |
+| 8 | Double review before submitting | Round 1: a second AI reviewing the repo as a hiring panel. Round 2: peer review by a developer friend |
 
 ## 1. Planning before any code
 
@@ -142,9 +142,13 @@ Within steps I had approved, I let the agent work on its own:
 - For the graph, the agent offered options and I picked node color by risk (over color by entity type) and approved its idea of a keyboard-usable search ([`341a646`](https://github.com/debic/mail-risk-intelligence/commit/341a646)).
 - I asked the agent to explain how the knowledge graph connects emails (through shared entities, not email-to-email links) before accepting it, which also surfaced a known limitation for the README.
 
-**After an external review**
+## 7. Stage 8: double review before submitting
 
-When the app was done, I asked a second AI chat to review the repo as a hiring panel would and brought each finding back to the agent:
+Before sending the repo I had it reviewed twice and brought each finding back to the agent, which assessed it (valid, partly valid, or already covered) before fixing anything.
+
+**Round 1: a second AI acting as a hiring panel**
+
+I asked another AI chat to review the repo against the brief, as a strict hiring panel would:
 
 - Canvas graph without a full keyboard equivalent: browsable entity list (exchange E, [`ce67e6f`](https://github.com/debic/mail-risk-intelligence/commit/ce67e6f)).
 - "axe: 0 violations" was not reproducible because we had run axe manually: axe-core tests on the main components and a contrast test on the real design tokens, plus a check that the axe test fails on a deliberately broken component ([`a34a326`](https://github.com/debic/mail-risk-intelligence/commit/a34a326)).
@@ -153,7 +157,11 @@ When the app was done, I asked a second AI chat to review the repo as a hiring p
 - Proof that the design system is applied consistently: found 4 hardcoded colors, off-scale 6px values, input borders below 3:1 and long values overflowing the key facts card. All fixed, plus a guard test that fails on any hardcoded color or undefined token ([`0457201`](https://github.com/debic/mail-risk-intelligence/commit/0457201)).
 - An explicit responsive acceptance test at 320 / 375 / 768 / 900 / 1280px: turned into `npm run check:responsive`. It found the dialog buttons wrapping at 320px, now stacked on phones, and we confirmed the script fails when the fix is undone ([`0457201`](https://github.com/debic/mail-risk-intelligence/commit/0457201)). I first tried puppeteer-core but switched to playwright-core because the former added 7 high-severity audit warnings.
 
-## 7. How to verify
+**Round 2: peer review by a developer friend**
+
+In progress: feedback on security (prompt injection, attachment types, unknown links), code organization (configuration, prompts, folder structure), an audit trail for re-analysis, and a production build.
+
+## 8. How to verify
 
 Everything above can be checked without trusting this document:
 
@@ -164,7 +172,7 @@ Everything above can be checked without trusting this document:
 | `npm run eval -w server` | a `GROQ_API_KEY` in `.env` | 10/10 seeds at the expected risk level (LLM output can vary on borderline cases) | [`docs/evidence/eval-runs.txt`](docs/evidence/eval-runs.txt) (all 4 runs) |
 | `git log` | nothing | one commit per step, matching the stages and fixes above | [commit history](https://github.com/debic/mail-risk-intelligence/commits/main) |
 
-## 8. Time log
+## 9. Time log
 
 About 30 min of planning in Claude chat before starting, then building from 12:20. Two breaks (lunch and a short one) are not counted. Times come from my notes and match the commit timestamps.
 
@@ -180,12 +188,13 @@ About 30 min of planning in Claude chat before starting, then building from 12:2
 | Bonus: knowledge graph | ~10 min | 1h |
 | 6. Tests | ~5 min | 20 min |
 | 7. README, PROCESS, screenshots, final check | ~15 min | 40 min |
-| Fixes from an external review | ~30 min | |
+| 8. Double review: round 1 (AI reviewer) fixes | ~30 min | |
+| 8. Double review: round 2 (peer review) fixes, from 20:52 after a break | in progress | |
 | **Total** | **about 4h25** (30 min planning + 3h55 building) | 5h45 |
 
 Stage 0 ran over because of the revert and because I took time to understand the plan; everything after went faster than planned because writing code with an agent is quick, and most of my time went into reviewing, deciding and verifying.
 
-## 9. Reflection
+## 10. Reflection
 
 - **What worked**: a written `CLAUDE.md` with rules and an expected-results table; small approved steps with a commit after each one; letting the agent verify its own work (scripts, tests, browser, axe) before showing me; an evaluation script against a baseline, which turned "the AI seems fine" into a measurable 10/10; and a second AI acting as a reviewer, which caught gaps I would not have looked for.
 - **What I'd do differently**: make the approval rule explicit from the very first message to avoid the Stage 1 revert, check the LLM provider's current model list before planning around a specific model, and build the reproducible checks (axe, responsive) from the start instead of after the review.

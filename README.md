@@ -7,9 +7,17 @@ Emails land in a mailbox, two chained AI agents analyze them, and the UI shows w
 
 ![Inbox and email detail](docs/screenshots/inbox-detail.png)
 
-| Knowledge graph | Mobile |
-| --- | --- |
-| ![Knowledge graph](docs/screenshots/graph.png) | ![Mobile detail](docs/screenshots/mobile-detail.png) |
+**Knowledge graph**: Northgate Suppliers selected, linked to its old account (6621, E009) and the new one it asks to be paid to (9902, E004).
+
+![Knowledge graph](docs/screenshots/graph.png)
+
+**Mobile**: inbox and email detail at 390px.
+
+<p>
+  <img src="docs/screenshots/mobile-inbox.png" alt="Mobile inbox" width="280">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/mobile-detail.png" alt="Mobile email detail" width="280">
+</p>
 
 ## Run it
 
