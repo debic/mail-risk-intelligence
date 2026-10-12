@@ -166,6 +166,8 @@ A developer friend reviewed the code. Each comment was assessed with the agent b
 
 - Code organization: non-agent files had grown inside `agents/`, settings were spread across files (and the upload limits were duplicated between client and server), prompts were mixed with code, and the retry count was hidden in a function name. Now `llm/` holds the Groq client and output validation, the orchestrator lives in `pipeline/`, `config.ts` files hold every setting (with env overrides), upload limits live once in `shared/`, `MAX_RETRIES` is configurable, and prompts live in `prompts/` with a changelog and a version that is stored with every analysis (with a schema migration for existing databases). Behavior unchanged: all tests pass and a live re-analysis records `extraction-v2+risk-v5`.
 
+- Pagination and streaming (raised as a discussion topic): documented in the README instead of built. With a few dozen emails it adds risk and no visible benefit; the README explains the cursor pagination, server-side filters and counts, virtualized list and streaming ingestion I would use at scale.
+
 In progress: an audit trail for re-analysis, other extracted facts, and a production build.
 
 ## 8. How to verify

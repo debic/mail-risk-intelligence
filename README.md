@@ -85,6 +85,16 @@ Saved outputs of the test suite, the responsive check and all 4 eval runs are in
 
 **Manual checks:** on top of the automated suite, I ran a full-page axe audit in the browser on the inbox, email detail, graph and add email dialog at 375, 768, 1280 and 1440px, and tested keyboard-only navigation (0 violations after fixing 3 issues it found).
 
+## Scaling: pagination and streaming
+
+Not built, on purpose: with a few dozen emails it would add risk without a visible benefit. With thousands of emails, `GET /api/emails` returning everything and the list rendering every row would not hold up. What I would change:
+
+- **Cursor pagination in the API** (`?limit=50&before=<date,id>`) rather than page numbers, so new emails arriving while you scroll do not shift or duplicate rows.
+- **Filters and counts on the server** (`?risk=high` plus a counts endpoint), since the browser would no longer hold the full list. Indexes on `date` and `risk_level` to keep both fast.
+- **A virtualized inbox list** that renders only the visible rows, with infinite scroll.
+- **Streaming ingestion** for large files instead of loading them into memory (uploads are capped at 5 MB today), and a persistent job queue with several workers for analysis, within the LLM rate limits.
+- "Also in E009" links and the graph would fetch the target email or neighborhood on demand instead of assuming it is already loaded.
+
 ## Limitations and next steps
 
 - LLM output is not fully deterministic; borderline cases can shift one level (`npm run eval` re-checks).
