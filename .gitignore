@@ -150,7 +150,6 @@ vite.config.ts.timestamp-*
 
 # Project-specific
 !.env.example
-process-notes.md
 docs/ASSIGNMENT.md
 .DS_Store
 

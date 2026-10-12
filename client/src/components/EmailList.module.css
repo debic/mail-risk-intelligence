@@ -84,7 +84,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-1-5);
   width: 100%;
   padding: var(--space-5) var(--space-5) var(--space-5) var(--space-6);
   border: 0;

@@ -123,8 +123,8 @@
 }
 
 .notice[data-tone='danger'] {
-  border-color: #f5c2bd;
-  background: #fff6f5;
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
 }
 
 .noticeHint {
@@ -255,11 +255,19 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0 var(--space-2);
+  min-width: 0;
+}
+
+.factGroup li > span {
+  overflow-wrap: anywhere;
 }
 
 .factValue {
+  min-width: 0;
   font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
+  /* Long unbroken values (IBANs, URLs, reference ids) must wrap inside the card. */
+  overflow-wrap: anywhere;
 }
 
 .attachments {

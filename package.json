@@ -7,7 +7,8 @@
   ],
   "scripts": {
     "dev": "concurrently -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
-    "test": "npm test -w server && npm test -w client"
+    "test": "npm test -w server && npm test -w client",
+    "check:responsive": "npm run check:responsive -w client"
   },
   "devDependencies": {
     "concurrently": "^10.0.6"

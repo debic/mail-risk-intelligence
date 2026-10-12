@@ -15,7 +15,7 @@
 }
 
 .count {
-  padding: 0 6px;
+  padding: 0 var(--space-1-5);
   border-radius: var(--radius-full);
   background: var(--color-surface-sunken);
   color: var(--color-text-muted);

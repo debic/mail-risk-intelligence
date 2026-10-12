@@ -41,6 +41,7 @@ const PAIRS: [text: string, background: string][] = [
   ['color-accent', 'color-accent-soft'],
   ['color-on-accent', 'color-accent'],
   ['color-danger', 'color-surface'],
+  ['color-danger', 'color-danger-bg'],
   ['risk-high-fg', 'risk-high-bg'],
   ['risk-medium-fg', 'risk-medium-bg'],
   ['risk-low-fg', 'risk-low-bg'],
@@ -48,8 +49,25 @@ const PAIRS: [text: string, background: string][] = [
   ['status-fg', 'status-bg'],
 ]
 
-describe('design token contrast (WCAG AA, 4.5:1)', () => {
+// Non-text UI (WCAG 1.4.11, 3:1): field boundaries and the keyboard focus ring on every surface it appears on.
+const UI_PAIRS: [ui: string, background: string][] = [
+  ['color-border-input', 'color-surface'],
+  ['color-border-input', 'color-bg'],
+  ['color-focus', 'color-surface'],
+  ['color-focus', 'color-bg'],
+  ['color-focus', 'color-surface-selected'],
+  ['color-focus', 'color-accent-soft'],
+  ['color-danger', 'color-surface'],
+]
+
+describe('design token contrast: text (WCAG AA, 4.5:1)', () => {
   it.each(PAIRS)('--%s on --%s', (text, background) => {
     expect(contrast(token(text), token(background))).toBeGreaterThanOrEqual(4.5)
+  })
+})
+
+describe('design token contrast: non-text UI (WCAG 1.4.11, 3:1)', () => {
+  it.each(UI_PAIRS)('--%s on --%s', (ui, background) => {
+    expect(contrast(token(ui), token(background))).toBeGreaterThanOrEqual(3)
   })
 })

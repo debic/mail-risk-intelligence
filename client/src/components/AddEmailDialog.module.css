@@ -10,7 +10,7 @@
 }
 
 .dialog::backdrop {
-  background: rgb(0 40 70 / 0.45);
+  background: var(--color-backdrop);
 }
 
 .form {
@@ -69,7 +69,7 @@
 .tab {
   padding: var(--space-2);
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-inner);
   background: transparent;
   color: var(--color-text-muted);
   font-weight: var(--weight-medium);
@@ -90,7 +90,7 @@
   width: 100%;
   min-height: 220px;
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-border-input);
   border-radius: var(--radius-md);
   background: var(--color-surface);
   font-family: var(--font-mono);
@@ -187,7 +187,7 @@
 .error {
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  background: #fff6f5;
+  background: var(--color-danger-bg);
   color: var(--color-danger);
 }
 
@@ -233,7 +233,14 @@
     padding: var(--space-5);
   }
 
-  .footer > * {
-    flex: 1;
+  /* Phones: full-width stacked buttons, primary action first, labels never wrap. */
+  .footer {
+    flex-direction: column-reverse;
+  }
+
+  .secondary,
+  .primary {
+    width: 100%;
+    white-space: nowrap;
   }
 }

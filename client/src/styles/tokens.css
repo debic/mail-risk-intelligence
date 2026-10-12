@@ -13,7 +13,8 @@
   --color-surface-hover: #f4f6f8;
   --color-surface-selected: #e8f2fc;
   --color-border: #d5dbe3;
-  --color-border-strong: #b9c5d2;
+  --color-border-strong: #b9c5d2; /* decorative dividers and button outlines */
+  --color-border-input: #7d8fa3; /* form field boundaries: 3.3:1 on white (WCAG 1.4.11 needs 3:1) */
   --color-text: #002846; /* deep navy, 15.1:1 on white */
   --color-text-muted: #496579; /* 6.1:1 on white */
   --color-text-subtle: #5b6b78; /* 5.5:1 on white */
@@ -51,6 +52,11 @@
 
   /* Errors (failed analysis, load errors), kept distinct from "high risk" */
   --color-danger: #b42318;
+  --color-danger-bg: #fff6f5;
+  --color-danger-border: #f5c2bd;
+
+  /* Modal backdrop */
+  --color-backdrop: rgb(0 40 70 / 0.45);
 
   /* Pipeline status (queued / analyzing) */
   --status-fg: #496579;
@@ -76,6 +82,7 @@
 
   /* Spacing (4px base) */
   --space-1: 0.25rem; /* 4px */
+  --space-1-5: 0.375rem; /* 6px, for tight inline groups (badge, chips) */
   --space-2: 0.5rem; /* 8px */
   --space-3: 0.75rem; /* 12px */
   --space-4: 1rem; /* 16px */
@@ -87,6 +94,7 @@
 
   /* Shape and depth */
   --radius-sm: 4px;
+  --radius-inner: 6px; /* radius-md minus the 2px inset of segmented controls */
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-full: 999px;
