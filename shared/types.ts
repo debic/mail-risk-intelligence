@@ -88,3 +88,40 @@ export interface EmailDetail extends EmailListItem {
   relationships: EmailRelationship[];
   analysis: { model: string | null; durationMs: number | null; analyzedAt: string } | null;
 }
+
+// ---------- Knowledge graph (all emails) ----------
+
+export interface GraphNode extends EntityRef {
+  /** Emails this entity appears in. */
+  emailIds: string[];
+  /** Highest risk level among those emails, for coloring. */
+  maxRisk: RiskLevel | null;
+}
+
+export interface GraphEdge {
+  id: number;
+  source: number;
+  target: number;
+  type: string;
+  emailId: string;
+}
+
+export interface GraphData {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
+/** Body of POST /api/emails (JSON). File uploads are handled separately. */
+export interface NewEmailInput {
+  from?: string;
+  to?: string[];
+  subject?: string;
+  date?: string;
+  body: string;
+  attachments?: Attachment[];
+}
+
+export interface ApiError {
+  error: string;
+  details?: string[];
+}

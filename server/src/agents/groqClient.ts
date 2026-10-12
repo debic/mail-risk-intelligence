@@ -67,7 +67,23 @@ export function getModelName(): string {
   return process.env.GROQ_MODEL || DEFAULT_MODEL;
 }
 
-export async function callGroq({ system, user, timeoutMs = DEFAULT_TIMEOUT_MS }: CallGroqOptions): Promise<string> {
+export async function callGroq(options: CallGroqOptions): Promise<string> {
+  try {
+    return await requestCompletion(options, true);
+  } catch (err) {
+    // Groq's strict JSON mode occasionally rejects the model's output. Ask again without it:
+    // our own zod validation still rejects anything that is not the expected JSON.
+    if (err instanceof LlmError && err.kind === 'bad_json') {
+      return requestCompletion(options, false);
+    }
+    throw err;
+  }
+}
+
+async function requestCompletion(
+  { system, user, timeoutMs = DEFAULT_TIMEOUT_MS }: CallGroqOptions,
+  jsonMode: boolean,
+): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     throw new LlmError('no_key', 'GROQ_API_KEY is not configured');
@@ -94,7 +110,7 @@ export async function callGroq({ system, user, timeoutMs = DEFAULT_TIMEOUT_MS }:
         // gpt-oss models reason before answering; low effort keeps token use within free-tier limits.
         ...(model.startsWith('openai/gpt-oss') && { reasoning_effort: 'low' }),
         // JSON mode: the model must return a single valid JSON object.
-        response_format: { type: 'json_object' },
+        ...(jsonMode && { response_format: { type: 'json_object' } }),
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },

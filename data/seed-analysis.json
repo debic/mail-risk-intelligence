@@ -1,0 +1,921 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "generatedAt": "2026-10-12T11:31:45.887Z",
+  "results": {
+    "E001": {
+      "status": "done",
+      "durationMs": 3183,
+      "extraction": {
+        "sender": {
+          "name": "James",
+          "email": "j.harrington-ceo@arclne-corp.com"
+        },
+        "recipients": [
+          "finance-ops@arcline.com"
+        ],
+        "date": "2026-06-02T08:14:00Z",
+        "subject": "URGENT - confidential wire needed before noon",
+        "summary": "James Harrington asks Finance to wire $184,500 to a new escrow partner today before noon and to keep the request confidential.",
+        "requestedActions": [
+          "Wire $184,500 to the new escrow partner today before 12pm",
+          "Treat the request as confidential and do not involve anyone else"
+        ],
+        "keyFacts": {
+          "amounts": [
+            {
+              "value": "$184,500",
+              "context": "wire"
+            }
+          ],
+          "dates": [
+            {
+              "value": "today before 12pm",
+              "context": "deadline"
+            }
+          ],
+          "accounts": [],
+          "references": []
+        },
+        "attachments": []
+      },
+      "analysis": {
+        "risk": {
+          "level": "high",
+          "rationale": "The sender uses a lookalike domain (arclne-corp.com) and requests an urgent, confidential wire of $184,500 to a new escrow partner, a classic invoice‑fraud pattern.",
+          "tags": [
+            "urgency",
+            "impersonation",
+            "lookalike-domain",
+            "payment-change",
+            "financial-anomaly"
+          ]
+        },
+        "entities": [
+          {
+            "id": "e4",
+            "type": "amount",
+            "name": "$184,500",
+            "details": "wire request"
+          },
+          {
+            "id": "e2",
+            "type": "organization",
+            "name": "Arcline",
+            "details": "legitimate company domain arcline.com"
+          },
+          {
+            "id": "e3",
+            "type": "organization",
+            "name": "Finance Ops",
+            "details": "recipient finance-ops@arcline.com"
+          },
+          {
+            "id": "e1",
+            "type": "person",
+            "name": "James Harrington",
+            "details": "sender, email j.harrington-ceo@arclne-corp.com"
+          }
+        ],
+        "relationships": [
+          {
+            "source": "e1",
+            "target": "e3",
+            "type": "sends_email_to",
+            "evidence": "email sent to finance-ops@arcline.com"
+          },
+          {
+            "source": "e1",
+            "target": "e4",
+            "type": "requests_transfer_to",
+            "evidence": "wire $184,500 to new escrow partner"
+          }
+        ]
+      }
+    },
+    "E002": {
+      "status": "done",
+      "durationMs": 2464,
+      "extraction": {
+        "sender": {
+          "name": null,
+          "email": "it-notifications@arcline.com"
+        },
+        "recipients": [
+          "all-staff@arline.com"
+        ],
+        "date": "2026-06-02T09:00:00Z",
+        "subject": "Scheduled maintenance: VPN upgrade this weekend",
+        "summary": "IT notifies all staff that the VPN client will be upgraded Saturday night and may need to be reinstalled Monday morning.",
+        "requestedActions": [
+          "Reinstall the VPN client Monday morning if required"
+        ],
+        "keyFacts": {
+          "amounts": [],
+          "dates": [
+            {
+              "value": "Saturday 10pm-2am",
+              "context": "VPN upgrade window"
+            },
+            {
+              "value": "Monday morning",
+              "context": "Potential client reinstall"
+            }
+          ],
+          "accounts": [],
+          "references": []
+        },
+        "attachments": []
+      },
+      "analysis": {
+        "risk": {
+          "level": "none",
+          "rationale": "The email originates from the legitimate arcline.com domain and contains no malicious request, urgency, or credential request. The only anomaly is the recipient address uses a lookalike domain (arline.com), but this does not constitute a fraud or phishing attempt.",
+          "tags": []
+        },
+        "entities": [
+          {
+            "id": "e2",
+            "type": "organization",
+            "name": "Arcline",
+            "details": "it-notifications@arcline.com"
+          },
+          {
+            "id": "e6",
+            "type": "organization",
+            "name": "Arline",
+            "details": "all-staff@arline.com"
+          }
+        ],
+        "relationships": [
+          {
+            "source": "e2",
+            "target": "e6",
+            "type": "sends_email_to",
+            "evidence": "IT maintenance notification sent to all-staff@arline.com"
+          }
+        ]
+      }
+    },
+    "E003": {
+      "status": "done",
+      "durationMs": 5631,
+      "extraction": {
+        "sender": {
+          "name": null,
+          "email": "d.moreno@arcline.com"
+        },
+        "recipients": [
+          "dmoreno.private@fastmail.com"
+        ],
+        "date": "2026-06-03T22:41:00Z",
+        "subject": "fwd: Q3 roadmap + client contracts (for me)",
+        "summary": "The sender is forwarding documents before resigning next week and is taking copies of the Meridian and Talbot contracts. They ask the recipient not to reply from a work email.",
+        "requestedActions": [
+          "Don't reply to this from your work email."
+        ],
+        "keyFacts": {
+          "amounts": [
+            {
+              "value": "$1.2M",
+              "context": "Meridian Corp renewal ARR"
+            },
+            {
+              "value": "$800K",
+              "context": "Talbot Industries expansion opportunity"
+            }
+          ],
+          "dates": [
+            {
+              "value": "next week",
+              "context": "sender's resignation"
+            },
+            {
+              "value": "July",
+              "context": "decision due for Talbot Industries expansion"
+            }
+          ],
+          "accounts": [],
+          "references": []
+        },
+        "attachments": [
+          {
+            "filename": "Q3_roadmap_internal.pdf",
+            "summary": "Internal Q3 Roadmap - Confidential. Meridian Corp renewal: $1.2M ARR, at risk. Talbot Industries expansion: $800K opportunity, decision due July."
+          }
+        ]
+      },
+      "analysis": {
+        "risk": {
+          "level": "high",
+          "rationale": "The employee is forwarding confidential client contracts to a personal email address and explicitly instructs the recipient not to use a work email, indicating intentional data exfiltration before resignation.",
+          "tags": [
+            "data-exfiltration",
+            "insider-threat",
+            "confidentiality"
+          ]
+        },
+        "entities": [
+          {
+            "id": "e36",
+            "type": "amount",
+            "name": "$1.2M",
+            "details": "Meridian Corp renewal ARR"
+          },
+          {
+            "id": "e37",
+            "type": "amount",
+            "name": "$800K",
+            "details": "Talbot Industries expansion opportunity"
+          },
+          {
+            "id": "e2",
+            "type": "organization",
+            "name": "Arcline",
+            "details": "company"
+          },
+          {
+            "id": "e38",
+            "type": "organization",
+            "name": "Meridian Corp",
+            "details": "client"
+          },
+          {
+            "id": "e39",
+            "type": "organization",
+            "name": "Talbot Industries",
+            "details": "client"
+          },
+          {
+            "id": "e33",
+            "type": "person",
+            "name": "d.moreno@arcline.com",
+            "details": "sender, Arcline employee"
+          },
+          {
+            "id": "e34",
+            "type": "person",
+            "name": "dmoreno.private@fastmail.com",
+            "details": "recipient, personal email address"
+          }
+        ],
+        "relationships": [
+          {
+            "source": "e33",
+            "target": "e2",
+            "type": "employed_by",
+            "evidence": "sender email domain arcline.com"
+          },
+          {
+            "source": "e33",
+            "target": "e34",
+            "type": "sends_email_to",
+            "evidence": "email sent from d.moreno@arcline.com to dmoreno.private@fastmail.com"
+          },
+          {
+            "source": "e33",
+            "target": "e34",
+            "type": "shares_confidential_info_with",
+            "evidence": "forwarding confidential contracts and roadmap to personal address"
+          },
+          {
+            "source": "e33",
+            "target": "e38",
+            "type": "holds_role",
+            "evidence": "sender is handling Meridian Corp contract"
+          },
+          {
+            "source": "e33",
+            "target": "e39",
+            "type": "holds_role",
+            "evidence": "sender is handling Talbot Industries contract"
+          }
+        ]
+      }
+    },
+    "E004": {
+      "status": "done",
+      "durationMs": 14409,
+      "extraction": {
+        "sender": {
+          "name": null,
+          "email": "billing@northgate-suppliers.com"
+        },
+        "recipients": [
+          "accounts-payable@arcline.com"
+        ],
+        "date": "2026-06-04T11:20:00Z",
+        "subject": "Invoice #NS-4471 - please note updated payment details",
+        "summary": "Northgate Suppliers requests payment of invoice #NS-4471 for $47,300, due in 10 days, and asks the recipient to use the new bank account details provided.",
+        "requestedActions": [
+          "Schedule payment of invoice #NS-4471",
+          "Update records with the new payment account details"
+        ],
+        "keyFacts": {
+          "amounts": [
+            {
+              "value": "$47,300",
+              "context": "invoice #NS-4471 amount due"
+            },
+            {
+              "value": "$12,400",
+              "context": "previous invoice NS-4102"
+            },
+            {
+              "value": "$13,900",
+              "context": "previous invoice NS-4188"
+            },
+            {
+              "value": "$47,300.00",
+              "context": "invoice amount on attachment"
+            }
+          ],
+          "dates": [
+            {
+              "value": "10 days",
+              "context": "payment due in"
+            }
+          ],
+          "accounts": [
+            {
+              "value": "ending 6621",
+              "context": "previous account"
+            },
+            {
+              "value": "routing 044000037, account ending 9902",
+              "context": "new payment account"
+            }
+          ],
+          "references": [
+            {
+              "value": "#NS-4471",
+              "context": "invoice number"
+            },
+            {
+              "value": "NS-4102",
+              "context": "previous invoice"
+            },
+            {
+              "value": "NS-4188",
+              "context": "previous invoice"
+            }
+          ]
+        },
+        "attachments": [
+          {
+            "filename": "invoice_NS-4471.pdf",
+            "summary": "Northgate Suppliers Inc. Invoice #NS-4471 showing amount due $47,300.00, references previous invoices NS-4102 ($12,400) and NS-4188 ($13,900), previous account ending 6621, and new payment account routing 044000037 account ending 9902"
+          }
+        ]
+      },
+      "analysis": {
+        "risk": {
+          "level": "high",
+          "rationale": "The email from billing@northgate-suppliers.com requests payment to a new bank account (routing 044000037, account ending 9902) for a $47,300 invoice, a classic invoice‑fraud pattern involving a payment‑detail change.",
+          "tags": [
+            "payment-change",
+            "financial-anomaly",
+            "urgency"
+          ]
+        },
+        "entities": [
+          {
+            "id": "e11",
+            "type": "account",
+            "name": "account ending 6621",
+            "details": "previous payment account"
+          },
+          {
+            "id": "e10",
+            "type": "account",
+            "name": "routing 044000037, account ending 9902",
+            "details": "new payment account"
+          },
+          {
+            "id": "e9",
+            "type": "amount",
+            "name": "$47,300",
+            "details": "invoice #NS-4471 amount due"
+          },
+          {
+            "id": "e2",
+            "type": "organization",
+            "name": "Arcline",
+            "details": "accounts-payable@arcline.com"
+          },
+          {
+            "id": "e7",
+            "type": "organization",
+            "name": "Northgate Suppliers Inc.",
+            "details": "billing@northgate-suppliers.com"
+          }
+        ],
+        "relationships": [
+          {
+            "source": "e7",
+            "target": "e2",
+            "type": "sends_email_to",
+            "evidence": "email metadata"
+          },
+          {
+            "source": "e7",
+            "target": "e10",
+            "type": "requests_payment_to",
+            "evidence": "email body requests new bank details"
+          },
+          {
+            "source": "e7",
+            "target": "e9",
+            "type": "bills",
+            "evidence": "invoice #NS-4471 for $47,300"
+          },
+          {
+            "source": "e7",
+            "target": "e11",
+            "type": "mentions",
+            "evidence": "reference to previous account ending 6621"
+          }
+        ]
+      }
+    },
+    "E005": {
+      "status": "done",
+      "durationMs": 19226,
+      "extraction": {
+        "sender": {
+          "name": null,
+          "email": "r.tanaka@arcline.com"
+        },
+        "recipients": [
+          "personal.marcus.k@gmail.com"
+        ],
+        "date": "2026-06-05T19:02:00Z",
+        "subject": "hey - heads up before Friday",
+        "summary": "The sender informs Marcus that the Halvorsen deal is basically done and will be announced Friday morning, and suggests that now would be a good time to pick up shares before the market catches on.",
+        "requestedActions": [],
+        "keyFacts": {
+          "amounts": [],
+          "dates": [
+            {
+              "value": "Friday morning",
+              "context": "announcement"
+            }
+          ],
+          "accounts": [],
+          "references": [
+            {
+              "value": "Halvorsen deal",
+              "context": "deal mentioned"
+            }
+          ]
+        },
+        "attachments": []
+      },
+      "analysis": {
+        "risk": {
+          "level": "high",
+          "rationale": "The email shares non‑public information about the \"Halvorsen deal\" and advises the external recipient to buy shares before the market learns, constituting insider‑trading risk.",
+          "tags": [
+            "insider-trading",
+            "mnpi-risk"
+          ]
+        },
+        "entities": [
+          {
+            "id": "e14",
+            "type": "organization",
+            "name": "Halvorsen deal",
+            "details": "non‑public transaction being discussed"
+          },
+          {
+            "id": "e13",
+            "type": "person",
+            "name": "personal.marcus.k@gmail.com",
+            "details": "external recipient"
+          },
+          {
+            "id": "e12",
+            "type": "person",
+            "name": "r.tanaka@arcline.com",
+            "details": "sender, employee of Arcline"
+          }
+        ],
+        "relationships": [
+          {
+            "source": "e12",
+            "target": "e13",
+            "type": "sends_email_to",
+            "evidence": "email sent from r.tanaka@arcline.com to personal.marcus.k@gmail.com"
+          },
+          {
+            "source": "e12",
+            "target": "e14",
+            "type": "shares_confidential_info_with",
+            "evidence": "email mentions that the Halvorsen deal is basically done and will be announced Friday"
+          },
+          {
+            "source": "e12",
+            "target": "e13",
+            "type": "suggests_insider_trade",
+            "evidence": "email suggests picking up shares before the market catches on"
+          }
+        ]
+      }
+    },
+    "E006": {
+      "status": "done",
+      "durationMs": 7175,
+      "extraction": {
+        "sender": {
+          "name": null,
+          "email": "k.dubois.ext@partnerlogistics.com"
+        },
+        "recipients": [
+          "s.pillai@arcline.com"
+        ],
+        "date": "2026-06-06T14:55:00Z",
+        "subject": "you'll regret pulling out of this contract",
+        "summary": "The sender expresses frustration over a contract withdrawal and threatens further contact with the recipient.",
+        "requestedActions": [],
+        "keyFacts": {
+          "amounts": [],
+          "dates": [],
+          "accounts": [],
+          "references": []
+        },
+        "attachments": []
+      },
+      "analysis": {
+        "risk": {
+          "level": "high",
+          "rationale": "The email contains a direct threat ('you'll regret pulling out of this contract') toward an Arcline employee, which is a clear intimidation signal.",
+          "tags": [
+            "threat-language",
+            "harassment"
+          ]
+        },
+        "entities": [
+          {
+            "id": "e15",
+            "type": "person",
+            "name": "k.dubois.ext@partnerlogistics.com",
+            "details": null
+          },
+          {
+            "id": "e16",
+            "type": "person",
+            "name": "s.pillai@arcline.com",
+            "details": null
+          }
+        ],
+        "relationships": [
+          {
+            "source": "e15",
+            "target": "e16",
+            "type": "threatens",
+            "evidence": "you'll regret pulling out of this contract"
+          }
+        ]
+      }
+    },
+    "E007": {
+      "status": "done",
+      "durationMs": 9078,
+      "extraction": {
+        "sender": {
+          "name": null,
+          "email": "hr@arcline.com"
+        },
+        "recipients": [
+          "all-staff@arcline.com"
+        ],
+        "date": "2026-06-07T10:00:00Z",
+        "subject": "Summer holiday schedule + office closure dates",
+        "summary": "The sender informs all staff of the summer holiday calendar and notes office closures on July 3-5 and September 7.",
+        "requestedActions": [],
+        "keyFacts": {
+          "amounts": [],
+          "dates": [
+            {
+              "value": "July 3-5",
+              "context": "office closed"
+            },
+            {
+              "value": "Sept 7",
+              "context": "office closed"
+            }
+          ],
+          "accounts": [],
+          "references": []
+        },
+        "attachments": [
+          {
+            "filename": "holiday_calendar.pdf",
+            "summary": "summer holiday calendar"
+          }
+        ]
+      },
+      "analysis": {
+        "risk": {
+          "level": "none",
+          "rationale": "The email is a routine HR announcement about holiday dates from a legitimate arcline.com address with no request for money, credentials, or sensitive data.",
+          "tags": []
+        },
+        "entities": [
+          {
+            "id": "e2",
+            "type": "organization",
+            "name": "Arcline",
+            "details": "HR department (hr@arcline.com)"
+          },
+          {
+            "id": "e18",
+            "type": "organization",
+            "name": "Arcline Staff",
+            "details": "all-staff@arcline.com"
+          }
+        ],
+        "relationships": [
+          {
+            "source": "e2",
+            "target": "e18",
+            "type": "sends_email_to",
+            "evidence": "HR announcement to all staff"
+          }
+        ]
+      }
+    },
+    "E008": {
+      "status": "done",
+      "durationMs": 20255,
+      "extraction": {
+        "sender": {
+          "name": null,
+          "email": "security-alert@arclline-portal.com"
+        },
+        "recipients": [
+          "s.pillai@arcline.com"
+        ],
+        "date": "2026-06-08T07:33:00Z",
+        "subject": "Action required: your password expires in 24 hours",
+        "summary": "The sender informs the recipient that their Arcline account password will expire in 24 hours and asks them to verify their identity and reset the password using the provided secure link.",
+        "requestedActions": [
+          "verify identity",
+          "reset password using the secure link"
+        ],
+        "keyFacts": {
+          "amounts": [],
+          "dates": [
+            {
+              "value": "24 hours",
+              "context": "password expiration timeframe"
+            }
+          ],
+          "accounts": [],
+          "references": [
+            {
+              "value": "hxxp://arclline-portal-secure.com/reset?id=88213",
+              "context": "secure password reset link"
+            }
+          ]
+        },
+        "attachments": []
+      },
+      "analysis": {
+        "risk": {
+          "level": "high",
+          "rationale": "The sender uses a lookalike domain (arclline-portal.com) to impersonate Arcline and includes a malicious password‑reset link, indicating a phishing credential‑request with urgency.",
+          "tags": [
+            "impersonation",
+            "lookalike-domain",
+            "phishing",
+            "credential-request",
+            "urgency"
+          ]
+        },
+        "entities": [
+          {
+            "id": "e2",
+            "type": "organization",
+            "name": "Arcline",
+            "details": "Legitimate company"
+          },
+          {
+            "id": "e16",
+            "type": "person",
+            "name": "s.pillai@arcline.com",
+            "details": null
+          },
+          {
+            "id": "e19",
+            "type": "person",
+            "name": "security-alert@arclline-portal.com",
+            "details": null
+          }
+        ],
+        "relationships": [
+          {
+            "source": "e19",
+            "target": "e16",
+            "type": "sends_email_to",
+            "evidence": "email sent to s.pillai@arcline.com"
+          },
+          {
+            "source": "e19",
+            "target": "e2",
+            "type": "impersonates",
+            "evidence": "sender address mimics Arcline domain"
+          }
+        ]
+      }
+    },
+    "E009": {
+      "status": "done",
+      "durationMs": 6320,
+      "extraction": {
+        "sender": {
+          "name": null,
+          "email": "billing@northgate-suppliers.com"
+        },
+        "recipients": [
+          "accounts-payable@arcline.com"
+        ],
+        "date": "2026-05-04T11:00:00Z",
+        "subject": "Invoice #NS-4188 - payment due",
+        "summary": "Northgate Suppliers sent a monthly invoice to Arcline requesting payment.",
+        "requestedActions": [
+          "Pay the invoice #NS-4188 according to net 15 terms"
+        ],
+        "keyFacts": {
+          "amounts": [
+            {
+              "value": "$13,900.00",
+              "context": "Amount due"
+            }
+          ],
+          "dates": [],
+          "accounts": [
+            {
+              "value": "routing 044000037, account ending 6621",
+              "context": "Payment account"
+            }
+          ],
+          "references": [
+            {
+              "value": "#NS-4188",
+              "context": "Invoice number"
+            }
+          ]
+        },
+        "attachments": [
+          {
+            "filename": "invoice_NS-4188.pdf",
+            "summary": "Invoice #NS-4188 showing amount due $13,900.00 and payment account details"
+          }
+        ]
+      },
+      "analysis": {
+        "risk": {
+          "level": "none",
+          "rationale": "The email is a standard invoice from a known supplier domain (northgate-suppliers.com) to Arcline's accounts payable with no urgency, secrecy, or request to change payment details beyond the normal invoice.",
+          "tags": []
+        },
+        "entities": [
+          {
+            "id": "e25",
+            "type": "account",
+            "name": "routing 044000037, account ending 6621",
+            "details": "Bank account to which payment should be sent"
+          },
+          {
+            "id": "e24",
+            "type": "amount",
+            "name": "$13,900.00",
+            "details": "Amount due for invoice #NS-4188"
+          },
+          {
+            "id": "e23",
+            "type": "organization",
+            "name": "Arcline Accounts Payable",
+            "details": "Recipient department for payments"
+          },
+          {
+            "id": "e7",
+            "type": "organization",
+            "name": "Northgate Suppliers Inc.",
+            "details": "Supplier sending invoice"
+          },
+          {
+            "id": "e26",
+            "type": "other",
+            "name": "invoice_NS-4188.pdf",
+            "details": "Invoice #NS-4188 showing amount due"
+          }
+        ],
+        "relationships": [
+          {
+            "source": "e7",
+            "target": "e23",
+            "type": "sends_email_to",
+            "evidence": "Email sent from billing@northgate-suppliers.com to accounts-payable@arcline.com"
+          },
+          {
+            "source": "e7",
+            "target": "e24",
+            "type": "bills",
+            "evidence": "Invoice amount $13,900.00"
+          },
+          {
+            "source": "e7",
+            "target": "e25",
+            "type": "requests_transfer_to",
+            "evidence": "Payment account details provided"
+          }
+        ]
+      }
+    },
+    "E010": {
+      "status": "done",
+      "durationMs": 12785,
+      "extraction": {
+        "sender": {
+          "name": null,
+          "email": "anonymous.concern@protonmail.com"
+        },
+        "recipients": [
+          "compliance@arcline.com"
+        ],
+        "date": "2026-06-09T02:15:00Z",
+        "subject": "concerns about Q2 numbers",
+        "summary": "A finance team member anonymously reports that CFO Robert Ainsley asked two team members to move about $300K of Q2 marketing spend into a different cost center before the board review, without a clear business reason.",
+        "requestedActions": [],
+        "keyFacts": {
+          "amounts": [
+            {
+              "value": "$300K",
+              "context": "Q2 marketing spend moved to a different cost center"
+            }
+          ],
+          "dates": [
+            {
+              "value": "Q2",
+              "context": "marketing spend period"
+            }
+          ],
+          "accounts": [],
+          "references": []
+        },
+        "attachments": []
+      },
+      "analysis": {
+        "risk": {
+          "level": "medium",
+          "rationale": "An anonymous email reports a CFO directing the reallocation of $300K of marketing spend to a different cost center without justification, indicating a potential accounting irregularity.",
+          "tags": [
+            "accounting-irregularity",
+            "whistleblower"
+          ]
+        },
+        "entities": [
+          {
+            "id": "e2",
+            "type": "organization",
+            "name": "Arcline",
+            "details": "legitimate domain arcline.com"
+          },
+          {
+            "id": "e29",
+            "type": "person",
+            "name": "Robert Ainsley",
+            "details": "CFO"
+          },
+          {
+            "id": "e27",
+            "type": "person",
+            "name": "anonymous.concern@protonmail.com",
+            "details": null
+          }
+        ],
+        "relationships": [
+          {
+            "source": "e27",
+            "target": "e2",
+            "type": "sends_email_to",
+            "evidence": "email sent to compliance@arcline.com"
+          },
+          {
+            "source": "e29",
+            "target": "e2",
+            "type": "employed_by",
+            "evidence": "CFO of Arcline"
+          },
+          {
+            "source": "e29",
+            "target": "e27",
+            "type": "accuses",
+            "evidence": "CFO asked team members to move $300K without clear business reason"
+          }
+        ]
+      }
+    }
+  }
+}

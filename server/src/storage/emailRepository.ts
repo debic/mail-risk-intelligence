@@ -6,6 +6,9 @@ import type {
   EmailSource,
   EmailStatus,
   EntityType,
+  GraphData,
+  GraphEdge,
+  GraphNode,
   RawEmail,
   RiskLevel,
 } from '../../../shared/types.js';
@@ -182,6 +185,47 @@ export function createEmailRepository(db: Db) {
 
     setStatus(id: string, status: EmailStatus): void {
       db.prepare('UPDATE emails SET status = ?, updated_at = ? WHERE id = ?').run(status, now(), id);
+    },
+
+    /** Every entity linked to at least one email, plus all relationships, for the knowledge graph. */
+    getGraph(): GraphData {
+      const RANK: Record<RiskLevel, number> = { none: 0, low: 1, medium: 2, high: 3 };
+      const links = db
+        .prepare(
+          `SELECT en.id, en.type, en.name, ee.email_id, a.risk_level
+           FROM entities en
+           JOIN email_entities ee ON ee.entity_id = en.id
+           LEFT JOIN analyses a ON a.email_id = ee.email_id
+           ORDER BY en.id, ee.email_id`,
+        )
+        .all() as { id: number; type: EntityType; name: string; email_id: string; risk_level: RiskLevel | null }[];
+
+      const nodes = new Map<number, GraphNode>();
+      for (const link of links) {
+        const node = nodes.get(link.id) ?? { id: link.id, type: link.type, name: link.name, emailIds: [], maxRisk: null };
+        node.emailIds.push(link.email_id);
+        if (link.risk_level && (node.maxRisk === null || RANK[link.risk_level] > RANK[node.maxRisk])) {
+          node.maxRisk = link.risk_level;
+        }
+        nodes.set(link.id, node);
+      }
+
+      const edges = db
+        .prepare(
+          `SELECT id, source_entity_id AS source, target_entity_id AS target, type, email_id AS emailId
+           FROM relationships ORDER BY id`,
+        )
+        .all() as GraphEdge[];
+
+      return { nodes: [...nodes.values()], edges };
+    },
+
+    /** Put an email back in the queue (retry or re-analyze). */
+    requeue(id: string): void {
+      db.prepare(
+        `UPDATE emails SET status = 'queued', error_stage = NULL, error_kind = NULL, error_message = NULL, updated_at = ?
+         WHERE id = ?`,
+      ).run(now(), id);
     },
 
     /** Oldest queued email id, or null when there is nothing to process. */
