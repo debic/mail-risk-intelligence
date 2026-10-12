@@ -148,9 +148,9 @@ Update the checkboxes as steps are completed.
 - [x] 4.2 Inbox list with color-coded risk badge (with text label)
 - [x] 4.3 Detail view: original, extraction, rationale, tags
 - [x] 4.4 Entities and relationships panel
-- [ ] 4.5 Loading, empty and error states (including failed analysis + retry)
-- [ ] 4.6 Responsive: mobile list then detail with back button
-- [ ] 4.7 Accessibility: contrast, keyboard navigation, visible focus
+- [x] 4.5 Loading, empty and error states (including failed analysis + retry)
+- [x] 4.6 Responsive: mobile list then detail with back button
+- [x] 4.7 Accessibility: contrast, keyboard navigation, visible focus
 
 ### Stage 5: Add email (30 min)
 - [ ] 5.1 Form: paste raw text or upload `.txt`, `.eml`, `.pdf`

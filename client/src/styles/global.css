@@ -59,6 +59,28 @@ button {
   outline-offset: 2px;
 }
 
+/* First Tab stop: lets keyboard users jump past the header. */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 10;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: var(--weight-semibold);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+main:focus {
+  outline: none;
+}
+
 /* Hidden visually, still read by screen readers. */
 .visually-hidden {
   position: absolute;

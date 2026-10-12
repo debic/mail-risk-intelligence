@@ -74,7 +74,11 @@ export function EmailList({ emails, loading, error, selectedId, onSelect, onRetr
               disabled={loading || error !== null}
             >
               {item.label}
-              <span className={styles.filterCount}>{counts[item.id]}</span>
+              <span className={styles.filterCount}>
+                <span className="visually-hidden"> (</span>
+                {counts[item.id]}
+                <span className="visually-hidden">)</span>
+              </span>
             </button>
           ))}
         </div>

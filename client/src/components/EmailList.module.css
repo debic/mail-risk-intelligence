@@ -73,7 +73,7 @@
 
 .filterCount {
   font-variant-numeric: tabular-nums;
-  opacity: 0.8;
+  font-weight: var(--weight-regular);
 }
 
 .list > li + li {

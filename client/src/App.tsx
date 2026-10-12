@@ -22,8 +22,11 @@ function App() {
 
   return (
     <>
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
       <AppHeader view={view} onViewChange={setView} onAddEmail={() => {}} />
-      <main>
+      <main id="main" tabIndex={-1}>
         {view === 'inbox' ? (
           <SplitLayout
             showDetailOnMobile={selectedId !== null}
@@ -64,9 +67,13 @@ function App() {
             }
           />
         ) : (
-          <EmptyState icon="◎" title="Knowledge graph">
-            Entities and relationships across all emails will appear here.
-          </EmptyState>
+          <>
+            <h1 className="visually-hidden">Knowledge graph</h1>
+            <EmptyState icon="◎" title="Knowledge graph is coming soon">
+              It will connect people, organizations and accounts across all emails. For now, use the "Also in" links
+              in each email's entities to jump between related emails.
+            </EmptyState>
+          </>
         )}
       </main>
     </>
