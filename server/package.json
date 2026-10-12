@@ -8,7 +8,8 @@
     "ping:groq": "tsx --env-file-if-exists=../.env scripts/ping-groq.ts",
     "try:agents": "tsx --env-file-if-exists=../.env scripts/try-agents.ts",
     "eval": "tsx --env-file-if-exists=../.env scripts/eval-seed.ts",
-    "snapshot": "tsx --env-file-if-exists=../.env scripts/export-snapshot.ts"
+    "snapshot": "tsx --env-file-if-exists=../.env scripts/export-snapshot.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
@@ -25,6 +26,7 @@
     "@types/multer": "^2.3.0",
     "@types/node": "^24.19.2",
     "tsx": "^4.23.15",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.4"
   }
 }

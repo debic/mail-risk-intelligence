@@ -9,5 +9,5 @@
     "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": ["src", "scripts", "../shared"]
+  "include": ["src", "scripts", "test", "../shared"]
 }

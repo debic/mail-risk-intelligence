@@ -158,8 +158,8 @@ Update the checkboxes as steps are completed.
 - [x] 5.3 "Analyzing..." state while the pipeline runs
 
 ### Stage 6: Tests (20 min)
-- [ ] 6.1 LLM output parsing/validation tests, including garbage responses
-- [ ] 6.2 One or two UI component tests (e.g. risk badge)
+- [x] 6.1 LLM output parsing/validation tests, including garbage responses
+- [x] 6.2 One or two UI component tests (e.g. risk badge)
 
 ### Stage 7: Documentation (40 min)
 - [ ] 7.1 `README.md` (UI-track statement at the top)
