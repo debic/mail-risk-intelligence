@@ -153,9 +153,9 @@ Update the checkboxes as steps are completed.
 - [x] 4.7 Accessibility: contrast, keyboard navigation, visible focus
 
 ### Stage 5: Add email (30 min)
-- [ ] 5.1 Form: paste raw text or upload `.txt`, `.eml`, `.pdf`
+- [x] 5.1 Form: paste raw text or upload `.txt`, `.eml`, `.pdf`
 - [x] 5.2 Server-side parsing (pdf-parse for PDF, basic .eml parsing)
-- [ ] 5.3 "Analyzing..." state while the pipeline runs
+- [x] 5.3 "Analyzing..." state while the pipeline runs
 
 ### Stage 6: Tests (20 min)
 - [ ] 6.1 LLM output parsing/validation tests, including garbage responses

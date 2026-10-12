@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import type { EmailDetail as Email } from '../../shared/types'
+import { AddEmailDialog } from './components/AddEmailDialog'
 import { AppHeader, type View } from './components/AppHeader'
 import { EmailDetail } from './components/EmailDetail'
 import { EmailList } from './components/EmailList'
@@ -11,6 +13,7 @@ import { useEmails } from './hooks/useEmails'
 function App() {
   const [view, setView] = useState<View>('inbox')
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [adding, setAdding] = useState(false)
   const inbox = useEmails()
   const detail = useEmailDetail(selectedId)
 
@@ -20,12 +23,19 @@ function App() {
     void inbox.reload()
   }
 
+  function handleCreated(email: Email) {
+    // Show the new email right away; its status moves Queued → Analyzing → result by polling.
+    setView('inbox')
+    setSelectedId(email.id)
+    void inbox.reload()
+  }
+
   return (
     <>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <AppHeader view={view} onViewChange={setView} onAddEmail={() => {}} />
+      <AppHeader view={view} onViewChange={setView} onAddEmail={() => setAdding(true)} />
       <main id="main" tabIndex={-1}>
         {view === 'inbox' ? (
           <SplitLayout
@@ -76,6 +86,7 @@ function App() {
           </>
         )}
       </main>
+      <AddEmailDialog open={adding} onClose={() => setAdding(false)} onCreated={handleCreated} />
     </>
   )
 }

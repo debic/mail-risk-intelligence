@@ -37,6 +37,13 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
     }),
+  /** Pasted text or a .txt/.eml/.pdf file, parsed on the server. */
+  ingestEmail: (input: { text: string } | { file: File }) => {
+    const form = new FormData()
+    if ('file' in input) form.append('file', input.file)
+    else form.append('text', input.text)
+    return request<EmailDetail>('/emails/ingest', { method: 'POST', body: form })
+  },
   retryEmail: (id: string) => request<EmailDetail>(`/emails/${encodeURIComponent(id)}/retry`, { method: 'POST' }),
   getGraph: () => request<GraphData>('/graph'),
 }
