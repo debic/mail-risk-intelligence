@@ -42,7 +42,7 @@ export function parseRetryAfter(headers: Headers): number | undefined {
 
 // Client-side throttle for Groq's tokens-per-minute limit. Groq reports the remaining budget
 // on every response; when it runs low we wait for it to refill instead of hitting a 429.
-const MIN_TOKENS_BEFORE_CALL = 3000;
+const MIN_TOKENS_BEFORE_CALL = 4500; // a full Agent B call with the hardened prompt uses about 3-4K tokens
 const MAX_THROTTLE_WAIT_MS = 60_000;
 let budget: { remaining: number; limitPerMinute: number; seenAt: number } | null = null;
 

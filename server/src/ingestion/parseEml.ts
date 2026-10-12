@@ -1,5 +1,6 @@
 import { simpleParser, type AddressObject } from 'mailparser';
 import type { Attachment } from '../../../shared/types.js';
+import { isDangerousAttachment } from '../security/signals.js';
 import { extractPdfText } from './parsePdf.js';
 import { IngestionError, UNKNOWN_SENDER, type IngestedEmail } from './types.js';
 import { toIsoDate } from './parseRawText.js';
@@ -31,7 +32,10 @@ export async function parseEml(data: Buffer): Promise<IngestedEmail> {
   const attachments: Attachment[] = [];
   for (const file of parsed.attachments) {
     const filename = file.filename || 'attachment';
-    if (/\.txt$/i.test(filename) || file.contentType === 'text/plain') {
+    // Allow-list: only .txt and .pdf are read. Executables and scripts are never opened.
+    if (isDangerousAttachment(filename)) {
+      attachments.push({ filename, extracted_text: '(blocked: executable or script attachment, not opened)' });
+    } else if (/\.txt$/i.test(filename)) {
       attachments.push({ filename, extracted_text: file.content.toString('utf8').trim() });
     } else if (/\.pdf$/i.test(filename) || file.contentType === 'application/pdf') {
       const text = await extractPdfText(file.content).catch(() => '');

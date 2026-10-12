@@ -48,7 +48,7 @@ describe('analyzeEmail', () => {
     const d = deps({});
     const result = await analyzeEmail(email, d);
     expect(result.status).toBe('done');
-    expect(d.assessRisk).toHaveBeenCalledWith(extraction);
+    expect(d.assessRisk).toHaveBeenCalledWith(extraction, expect.objectContaining({ promptInjection: [] }));
   });
 
   it('retries a transient failure once, then succeeds', async () => {

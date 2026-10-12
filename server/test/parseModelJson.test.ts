@@ -100,3 +100,16 @@ describe('RiskAnalysisSchema normalization', () => {
     expect(result.entities.find((entity) => entity.id === 'e3')?.type).toBe('other');
   });
 });
+
+describe('RiskAnalysisSchema tolerates a malformed entity', () => {
+  it('drops the bad entity and keeps the rest of the analysis', () => {
+    const raw = JSON.stringify({
+      risk: { level: 'high', rationale: 'Insider trading tip.', tags: ['mnpi-risk'] },
+      entities: [{ id: 'e1', type: 'person', name: 'R. Tanaka', details: null }, 'Halvorsen deal', { id: 'e3' }],
+      relationships: [],
+    });
+    const result = parseModelJson(raw, RiskAnalysisSchema);
+    expect(result.risk.level).toBe('high');
+    expect(result.entities.map((entity) => entity.name)).toEqual(['R. Tanaka']);
+  });
+});

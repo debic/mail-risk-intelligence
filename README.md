@@ -31,7 +31,7 @@ npm run dev            # http://localhost:5173
 
 **Without a key the app still works:** the 10 seed emails load from a committed snapshot of their analysis, and new emails show a clear "AI service not configured" state with Retry. Try **Add email** with the files in [`samples/`](samples/).
 
-`npm test` runs 119 tests (no API calls). `npm run eval -w server` checks the 10 seeds against my expected risk levels (10/10). With the app running, `npm run check:responsive` checks every main view at 5 widths in your installed Chrome.
+`npm test` runs 140 tests (no API calls). `npm run eval -w server` checks the 10 seeds against my expected risk levels (10/10). With the app running, `npm run check:responsive` checks every main view at 5 widths in your installed Chrome.
 
 ## Architecture
 
@@ -53,6 +53,7 @@ Adding an email returns immediately as `queued`; a background queue runs Agent A
 - **LLM: Groq free tier, `openai/gpt-oss-120b`.** Fast, no local install. The prompt knows the real domain (`arcline.com`) and has explicit severity rules, tuned over 4 eval runs to reach 10/10.
 - **Failure handling.** Every model response is validated with zod; garbage is rejected. The orchestrator never throws: it retries transient errors once (timeout, network, 429/5xx, bad JSON), never retries a missing key, and stores `failed` with a reason. If Agent B fails, Agent A's extraction is still shown. A throttle reads Groq's token budget headers to avoid rate limits.
 - **Styling: CSS Modules + CSS custom properties as design tokens.** No extra dependencies, scoped styles, and one file ([tokens.css](client/src/styles/tokens.css)) holds the whole design system. Color is reserved for risk; the palette is based on the hiring company's brand since Arcline is fictional.
+- **Security.** Emails are untrusted input. Both prompts wrap the email in delimiters and tell the model never to follow instructions inside it. Deterministic checks outside the model (text that tries to instruct an AI, executable or script attachments, links to domains that are neither the sender's nor `arcline.com`) are passed to Agent B and enforce a minimum risk level the model cannot lower. Attachments are allow-listed: only `.txt` and `.pdf` are read; executables and scripts are never opened. SQL injection is covered separately: every query uses bound parameters, never string concatenation. Try [`samples/prompt-injection.txt`](samples/prompt-injection.txt).
 - **Accessibility.** Risk is never shown by color alone, AA contrast everywhere, visible focus, keyboard navigation, skip link, native `<dialog>`, a keyboard-browsable entity list and search as an equivalent to the canvas graph.
 - **Responsive.** Two panels from 900px, one panel with a Back button below that.
 - **Caching.** LLM results are persisted, so restarts never re-analyze; the seed snapshot works as a precomputed cache.
@@ -61,9 +62,10 @@ Adding an email returns immediately as `queued`; a background queue runs Agent A
 
 | Suite | Tests | What it covers |
 | --- | --- | --- |
-| Server: model output parsing | 14 | valid output, garbage (prose, truncated JSON, empty, wrong shape), normalization |
+| Server: model output parsing | 15 | valid output, garbage (prose, truncated JSON, empty, wrong shape), normalization |
 | Server: orchestrator | 8 | retry once on transient errors, no retry without a key, partial results, never throws |
 | Server: ingestion | 21 | pasted text, the `.txt` / `.eml` / `.pdf` samples, renamed and malformed files (content is checked, not just the extension), error codes, display names with commas |
+| Server: security | 20 | prompt injection detection, executable attachments never opened, unknown links (including `hxxp://`), a risk floor the model cannot lower, delimiter escaping |
 | Server: storage | 4 | entity de-duplication that links emails in the graph |
 | Server: API (HTTP) | 9 | bad uploads return 400 and store nothing, library errors never reach the client, oversized files, valid upload is queued, 404 |
 | UI: components | 21 | risk badge labels, failure and retry states, `hxxp://` never clickable, file validation, add email submit and error states |

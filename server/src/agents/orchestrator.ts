@@ -3,6 +3,7 @@ import { runExtractionAgent } from './extractionAgent.js';
 import { LlmError } from './groqClient.js';
 import { InvalidOutputError } from './parseModelJson.js';
 import { runRiskAgent } from './riskAgent.js';
+import { detectSignals, isAbove, signalFloor, type SecuritySignals } from '../security/signals.js';
 import type { Extraction, RiskAnalysis } from './schemas.js';
 
 // Runs Agent A then Agent B. Agents throw on failure; the orchestrator catches
@@ -22,7 +23,7 @@ export type PipelineResult =
 
 export interface PipelineDeps {
   extract: (email: RawEmail) => Promise<Extraction>;
-  assessRisk: (extraction: Extraction) => Promise<RiskAnalysis>;
+  assessRisk: (extraction: Extraction, signals: SecuritySignals) => Promise<RiskAnalysis>;
   retryDelayMs: number;
 }
 
@@ -70,6 +71,26 @@ async function withOneRetry<T>(task: () => Promise<T>, retryDelayMs: number): Pr
   }
 }
 
+/**
+ * The model's verdict can be raised but never lowered by the deterministic checks, so an email
+ * cannot talk the model out of flagging a prompt injection, an executable or an unknown link.
+ */
+export function applySignalFloor(analysis: RiskAnalysis, signals: SecuritySignals): RiskAnalysis {
+  const floor = signalFloor(signals);
+  if (floor.reasons.length === 0) return analysis;
+  const raised = isAbove(floor.level, analysis.risk.level);
+  return {
+    ...analysis,
+    risk: {
+      level: raised ? floor.level : analysis.risk.level,
+      rationale: raised
+        ? `${analysis.risk.rationale} Raised to ${floor.level} by automated checks: ${floor.reasons.join('; ')}.`
+        : analysis.risk.rationale,
+      tags: [...new Set([...floor.tags, ...analysis.risk.tags])],
+    },
+  };
+}
+
 export async function analyzeEmail(email: RawEmail, deps: PipelineDeps = defaultDeps): Promise<PipelineResult> {
   const startedAt = Date.now();
   const elapsed = () => Date.now() - startedAt;
@@ -82,8 +103,9 @@ export async function analyzeEmail(email: RawEmail, deps: PipelineDeps = default
   }
 
   try {
-    const analysis = await withOneRetry(() => deps.assessRisk(extraction), deps.retryDelayMs);
-    return { status: 'done', extraction, analysis, durationMs: elapsed() };
+    const signals = detectSignals(email);
+    const analysis = await withOneRetry(() => deps.assessRisk(extraction, signals), deps.retryDelayMs);
+    return { status: 'done', extraction, analysis: applySignalFloor(analysis, signals), durationMs: elapsed() };
   } catch (err) {
     return { status: 'failed', stage: 'risk', error: toPipelineError(err), extraction, durationMs: elapsed() };
   }

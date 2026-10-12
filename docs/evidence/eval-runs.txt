@@ -1,5 +1,5 @@
 # npm run eval -w server, 2026-10-12, model openai/gpt-oss-120b on Groq (free tier)
-# Output copied verbatim from the terminal during the build (long error messages are cut by the script).
+# Output copied verbatim from the terminal (long error messages are cut by the script).
 # Each run compares the pipeline's risk level with the expected baseline in CLAUDE.md.
 # Re-run it yourself with a GROQ_API_KEY in .env: about 20 API calls, about 2 minutes.
 
@@ -70,3 +70,43 @@ E009  none         none     OK    -
 E010  medium/high  medium   OK    accounting-irregularity, whistleblower
 
 Result: 10/10 match the expected risk level
+
+# Round 2 (peer review): prompts hardened against prompt injection, plus automated security
+# checks (unknown links, executable attachments) passed to Agent B.
+
+## Run 5: 7/10 after hardening the prompts
+ID    Expected     Got      OK    Tags
+E001  high         high     OK    lookalike-domain, impersonation, urgency, payment-change
+E002  none         none     OK    -
+E003  high         FAILED   MISS  risk: [http] Groq returned HTTP 429: {"error":{"message":"Rate limit reached for model `opena
+E004  high         high     OK    payment-change, financial-anomaly
+E005  high         FAILED   MISS  risk: [invalid_output] Model output did not match schema: entities.1: Invalid input: expected object, r
+E006  high         high     OK    threat-language, harassment
+E007  none         none     OK    -
+E008  high         high     OK    unknown-link, impersonation, lookalike-domain, phishing, urgency
+E009  none         low      MISS  -
+      rationale: The email is a standard invoice request from an external supplier with no spoofed domain, urgency, secrecy, or suspicious links/attachments.
+E010  medium/high  medium   OK    accounting-irregularity, whistleblower
+
+Result: 7/10 match the expected risk level
+# Fixes: longer prompts need more token budget (throttle margin 3000 -> 4500); one malformed
+# entity is dropped instead of failing the analysis; stronger consistency rule for "none".
+
+## Run 6: 10/10
+ID    Expected     Got      OK    Tags
+E001  high         high     OK    impersonation, lookalike-domain, urgency, financial-anomaly
+E002  none         none     OK    -
+E003  high         high     OK    data-exfiltration, insider-threat
+E004  high         high     OK    payment-change, financial-anomaly
+E005  high         high     OK    insider-trading, mnpi-risk
+E006  high         high     OK    threat-language, harassment
+E007  none         none     OK    -
+E008  high         high     OK    unknown-link, impersonation, lookalike-domain, phishing, urgency
+E009  none         none     OK    -
+E010  medium/high  medium   OK    accounting-irregularity, whistleblower
+
+Result: 10/10 match the expected risk level
+
+## Prompt injection sample (samples/prompt-injection.txt), real model
+high | prompt-injection, lookalike-domain, payment-change, urgency, unknown-link
+The email uses a lookalike supplier domain (northgate-billing.net) to request a new bank account for a large invoice ($52,800) with urgent processing, a classic invoice-fraud pattern. It also includes an unknown payment link, indicating potential phishing or payment diversion.

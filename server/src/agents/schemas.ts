@@ -81,7 +81,16 @@ export const RiskAnalysisSchema = z
         .default([])
         .transform((tags) => [...new Set(tags.map(toKebabCase).filter((tag) => tag && !MEANINGLESS_TAGS.has(tag)))]),
     }),
-    entities: z.array(EntitySchema).default([]),
+    // One malformed entity (e.g. a bare string) is dropped instead of failing the whole analysis.
+    entities: z
+      .array(z.unknown())
+      .default([])
+      .transform((items) =>
+        items.flatMap((item) => {
+          const parsed = EntitySchema.safeParse(item);
+          return parsed.success ? [parsed.data] : [];
+        }),
+      ),
     relationships: z.array(RelationshipSchema).default([]),
   })
   // Drop relationships that point to entity ids the model never declared,
